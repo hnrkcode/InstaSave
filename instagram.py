@@ -25,9 +25,22 @@ def random_user_agent():
 
 class PostScraper:
 
-    def __init__(self):
+    def __init__(self, output=None):
         self.headers = {"User-Agent": random_user_agent()}
-        self.output = os.path.join(os.getcwd(), "downloads")
+        self.output = output
+
+    @property
+    def output(self):
+        return self.__output
+
+    @output.setter
+    def output(self, output):
+        # Custom output location.
+        if output:
+            self.__output = os.path.join(output, "downloads")
+        # Default output location.
+        else:
+            self.__output = os.path.join(os.getcwd(), "downloads")
 
     def download(self, url):
         """Download files to disk."""
