@@ -1,4 +1,5 @@
 __pycache__/
+downloads/
 *.mp4
 *.jpg
 useragents.txt

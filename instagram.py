@@ -1,3 +1,4 @@
+import os
 import json
 import random
 import requests
@@ -26,6 +27,7 @@ class PostScraper:
 
     def __init__(self):
         self.headers = {"User-Agent": random_user_agent()}
+        self.output = os.path.join(os.getcwd(), "downloads")
 
     def download(self, url):
         """Download files to disk."""
@@ -105,6 +107,10 @@ class PostScraper:
     def _save(self, content, filename):
         """Write content to file."""
 
-        with open(filename, 'wb') as f:
+        # Create folder for downloaded files if it not exist.
+        if not os.path.isdir(self.output):
+            os.mkdir(self.output)
+        # Write content to file.
+        with open(os.path.join(self.output, filename), 'wb') as f:
             f.write(content)
         f.close()
