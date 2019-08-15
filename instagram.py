@@ -3,12 +3,12 @@ import random
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
-
+from settings import USER_AGENT_FILE, POST_DATE_FORMAT
 
 def random_user_agent():
     """Read in all possible user agents from a file and pick one."""
 
-    filename = "useragents.txt"
+    filename = USER_AGENT_FILE
 
     with open(filename, 'r') as f:
         # Read the file and split it's lines into a list of user agents.
@@ -47,8 +47,8 @@ class PostScraper:
     def _get_post_data(self, url):
         """Returns the file URLs and the post type."""
 
-        # Get the page's HTML code and parse it with BeautifulSoup to find the type
-        # of the post.
+        # Get the page's HTML code and parse it with BeautifulSoup
+        # to find the type of the post.
         html = requests.get(url, headers=self.headers).text
         soup = BeautifulSoup(html, 'html.parser')
         data = json.loads(soup.select("script[type='text/javascript']")[3].text[21:-1])
@@ -70,7 +70,7 @@ class PostScraper:
         return image_url, post_type
 
     def _download_file(self, url):
-        """Get the content from the url, pick a name for the file and save it."""
+        """Get content from the url, pick a name for the file and save it."""
 
         r = requests.get(url, headers=self.headers)
         filename = self._pick_filename(r.headers)
@@ -80,7 +80,7 @@ class PostScraper:
         """Give the file a unique name."""
 
         # Get the date the post was uploaded.
-        d = datetime.strptime(headers.get('last-modified'), "%a, %d %b %Y %H:%M:%S %Z")
+        d = datetime.strptime(headers.get('last-modified'), POST_DATE_FORMAT)
         # Format the date and time and use it in the filename.
         filename = d.strftime("%Y%m%d_%H%M%S_")
         # Add a unique string to the filename to prevent conflicting names.
