@@ -17,6 +17,7 @@ class CleanURL:
 
     def _valid_url(self, url):
         """Make sure it is a working instagram url."""
+
         if url is None:
             sys.exit("That's not an instagram post.")
         if not self._url_exists(url.group()):
@@ -26,7 +27,9 @@ class CleanURL:
 
     def _url_exists(self, url):
         """Return true if the HTTP request is sucessful."""
+
         r = requests.get(url)
+
         if r.status_code == 200:
             return True
 
@@ -34,6 +37,7 @@ class CleanURL:
 
     def _remove_utm_code(self, url):
         """Remove tracking code from url."""
+
         pattern = "^http[s]*\:\/+www.instagram.com\/[a-z]\/[A-Za-z0-9_-]+"
         match = re.match(pattern, url)
 
