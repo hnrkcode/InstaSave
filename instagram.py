@@ -5,6 +5,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from settings import USER_AGENT_FILE, POST_DATE_FORMAT
 
+
 def random_user_agent():
     """Read in all possible user agents from a file and pick one."""
 
@@ -51,18 +52,26 @@ class PostScraper:
         # to find the type of the post.
         html = requests.get(url, headers=self.headers).text
         soup = BeautifulSoup(html, 'html.parser')
-        data = json.loads(soup.select("script[type='text/javascript']")[3].text[21:-1])
-        post_type = data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]["__typename"]
+        # Get all scripts in the HTML.
+        js = soup.select("script[type='text/javascript']")
+        # Pick the fourth script and remove variable name and semicolon.
+        json_data = js[3].text[21:-1]
+        # Deserialize the data to a python object and access the information
+        # at the 'shortcode_media' key.
+        data = json.loads(json_data)
+        data = data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+        # Get the type of the post.
+        post_type = data["__typename"]
 
         # Post with a video file.
         if post_type == "GraphVideo":
-            image_url = data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]["video_url"]
+            image_url = data["video_url"]
         # Post with a image file.
         elif post_type == "GraphImage":
-            image_url = data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]["display_url"]
+            image_url = data["display_url"]
         # Post with multiple files, either images and/or videos.
         elif post_type == "GraphSidecar":
-            edges = data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]["edge_sidecar_to_children"]["edges"]
+            edges = data["edge_sidecar_to_children"]["edges"]
             # Differentiate between images and videos in multi-content posts.
             # Get urls with .jpg for images and .mp4 for videos.
             image_url = [edge["node"]["video_url"] if edge["node"]["__typename"] == "GraphVideo" else edge["node"]["display_url"] for edge in edges]
