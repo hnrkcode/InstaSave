@@ -2,31 +2,17 @@ import os
 import json
 import random
 import requests
+import utils
 from datetime import datetime
 from bs4 import BeautifulSoup
-from settings import USER_AGENT_FILE, POST_DATE_FORMAT
-
-
-def random_user_agent():
-    """Read in all possible user agents from a file and pick one."""
-
-    filename = USER_AGENT_FILE
-
-    with open(filename, 'r') as f:
-        # Read the file and split it's lines into a list of user agents.
-        lines = f.read().splitlines()
-        # Randomly pick one user agent from the list.
-        user_agent = random.choice(lines)
-
-    f.close()
-
-    return user_agent
+from settings import POST_DATE_FORMAT
 
 
 class PostScraper:
 
     def __init__(self, output=None):
-        self.headers = {"User-Agent": random_user_agent()}
+        self.headers = {"User-Agent": utils.random_useragent()}
+        print(self.headers)
         self.output = output
 
     @property
