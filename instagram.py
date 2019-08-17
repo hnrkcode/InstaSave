@@ -134,8 +134,7 @@ class PostScraper:
         # The first two bytes are always FF D8.
         # The third and fourth bytes are FF Ex (where x = 0..F) which referres
         # to APP0 - APP15, and contain application-specific information.
-        if buffer[0] == 0xff and buffer[1] == 0xd8 \
-                and buffer[2] == 0xff and (buffer[3] & 0xe0) == 0xe0:
+        if buffer[:3] == b"\xff\xd8\xff" and (buffer[3] & 0xe0) == 0xe0:
             # Current position in the buffer.
             cur = 0
             for byte in buffer:
@@ -151,12 +150,7 @@ class PostScraper:
         # The first four bytes are the same in both types.
         # 66 74 79 70 69 73 6F 6D - ISO Base Media file (MPEG-4) v1.
         # 66 74 79 70 4D 53 4E 56 - MPEG-4 video file.
-        elif buffer[4] == 0x66 and buffer[5] == 0x74 and \
-                buffer[6] == 0x79 and buffer[7] == 0x70 \
-                and \
-                ((buffer[8] == 0x69 and buffer[9] == 0x73 and \
-                buffer[10] == 0x6F and buffer[11] == 0x6D) \
-                or \
-                (buffer[8] == 0x4D and buffer[9] == 0x53 and \
-                buffer[10] == 0x4E and buffer[11] == 0x56)):
+        elif buffer[4:8] == b"\x66\x74\x79\x70" and \
+                buffer[8:12] == b"\x69\x73\x6f\x6d" or \
+                buffer[8:12] == b"\x4d\x53\x4e\x56":
             file.write(buffer)
