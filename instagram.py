@@ -2,7 +2,7 @@ import os
 import json
 import random
 import requests
-import utils
+from helper import random_useragent
 from datetime import datetime
 from bs4 import BeautifulSoup
 from settings import POST_DATE_FORMAT, USER_AGENT_FILE
@@ -11,7 +11,7 @@ from settings import POST_DATE_FORMAT, USER_AGENT_FILE
 class PostScraper:
 
     def __init__(self, output=None):
-        self.headers = {"User-Agent": utils.random_useragent(USER_AGENT_FILE)}
+        self.headers = {"User-Agent": random_useragent(USER_AGENT_FILE)}
         print(self.headers)
         self.output = output
 
