@@ -2,7 +2,7 @@ import sys
 import os.path
 import argparse
 import instagram
-from url import CleanURL
+from url import clean, is_working
 
 
 def main():
@@ -11,8 +11,7 @@ def main():
     parser.add_argument("-o", "--output", help="Custom output path.")
     args = parser.parse_args()
 
-    clean = CleanURL(args.url)
-
+    # Custom download directory.
     if args.output:
         # Check if the output path exists.
         if not os.path.exists(args.output):
@@ -21,7 +20,11 @@ def main():
     else:
         post = instagram.PostScraper()
 
-    post.download(clean.url)
+    # Clean and check that the url i working before downloading.
+    post_url = clean(args.url)
+    if not is_working(post_url):
+        sys.exit("Sorry, this page isn't available.")
+    post.download(post_url)
 
 
 if __name__ == '__main__':

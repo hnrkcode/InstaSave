@@ -5,13 +5,13 @@ import requests
 import utils
 from datetime import datetime
 from bs4 import BeautifulSoup
-from settings import POST_DATE_FORMAT
+from settings import POST_DATE_FORMAT, USER_AGENT_FILE
 
 
 class PostScraper:
 
     def __init__(self, output=None):
-        self.headers = {"User-Agent": utils.random_useragent()}
+        self.headers = {"User-Agent": utils.random_useragent(USER_AGENT_FILE)}
         print(self.headers)
         self.output = output
 
@@ -112,7 +112,6 @@ class PostScraper:
         # Write content to file.
         with open(os.path.join(self.output, filename), 'wb') as f:
             self._write(content, f)
-        f.close()
 
     def _write(self, buffer, file):
         """Write data to file."""

@@ -2,43 +2,40 @@ import re
 import sys
 import requests
 
-class CleanURL:
 
-    def __init__(self, url):
-        self.url = url
+def clean(url):
+    """Check if it's a link to a post and remove UTM code."""
 
-    @property
-    def url(self):
-        return self.__url
+    # Pattern that match a link to an Instagram post.
+    pattern = "^http[s]?:\/\/www.instagram.com/p/[a-zA-Z0-9_-]{11}"
+    match = re.match(pattern, url)
+    # Shut down the program if the URL didn't match the pattern.
+    if not match:
+        sys.exit("Not a link to an Instagram post")
+    # If the link had any UTM code, it's now removed.
+    clean_url = match.group()
 
-    @url.setter
-    def url(self, url):
-        self.__url = self._valid_url(self._remove_utm_code(url))
+    return clean_url
 
-    def _valid_url(self, url):
-        """Make sure it is a working instagram url."""
+def is_working(url):
+    """Check if the URL is working."""
 
-        if url is None:
-            sys.exit("That's not an instagram post.")
-        if not self._url_exists(url.group()):
-            sys.exit("The page does not exist.")
-
-        return url.group()
-
-    def _url_exists(self, url):
-        """Return true if the HTTP request is sucessful."""
-
+    try:
         r = requests.get(url)
+    except requests.exceptions.MissingSchema:
+        #raise SystemExit("Invalid URL.")
+        sys.exit("Invalid URL")
+    except requests.exceptions.ConnectionError:
+        #raise SystemExit("Connection error!")
+        sys.exit("Connection error")
+    except requests.exceptions.Timeout:
+        #raise SystemExit("Timeout.")
+        sys.exit("Timeout")
 
-        if r.status_code == 200:
-            return True
-
+    # If the request didn't return 200, it probably returned 404.
+    # That could indicate that the link has been removed,
+    # belongs to a private account or never existed.
+    if r.status_code != 200:
         return False
 
-    def _remove_utm_code(self, url):
-        """Remove tracking code from url."""
-
-        pattern = "^http[s]*\:\/+www.instagram.com\/[a-z]\/[A-Za-z0-9_-]+"
-        match = re.match(pattern, url)
-
-        return match
+    return True
