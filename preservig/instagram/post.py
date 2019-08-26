@@ -4,14 +4,13 @@ import random
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
-from helpers import random_useragent
-from settings import POST_DATE_FORMAT, USER_AGENT_FILE
+from settings import POST_DATE_FORMAT
 
 
 class Downloader:
 
-    def __init__(self, output=None):
-        self.headers = {"User-Agent": random_useragent(USER_AGENT_FILE)}
+    def __init__(self, headers, output=None):
+        self.headers = headers
         self.output = output
 
     @property
@@ -30,9 +29,7 @@ class Downloader:
     def download(self, url):
         """Download files to disk."""
 
-        data = self._get_post_data(url)
-        post_urls = data[0]
-        post_type = data[1]
+        post_urls, post_type = self._get_post_data(url)
 
         # Post with a video file.
         if post_type == "GraphVideo":
@@ -50,8 +47,8 @@ class Downloader:
 
         # Get the page's HTML code and parse it with BeautifulSoup
         # to find the type of the post.
-        html = requests.get(url, headers=self.headers).text
-        soup = BeautifulSoup(html, 'html.parser')
+        html = requests.get(url, headers=self.headers)
+        soup = BeautifulSoup(html.text, 'html.parser')
         # Get all scripts in the HTML.
         js = soup.select("script[type='text/javascript']")
         # Pick the fourth script and remove variable name and semicolon.

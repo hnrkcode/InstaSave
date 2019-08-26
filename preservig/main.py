@@ -1,7 +1,8 @@
 import os.path
 import argparse
 from instagram.post import Downloader
-from helpers import clean, url_exists
+from helpers import clean, url_exists, HTTPHeaders
+from settings import USER_AGENT_FILE
 
 
 def main():
@@ -10,14 +11,17 @@ def main():
     parser.add_argument("-o", "--output", help="Custom output path.")
     args = parser.parse_args()
 
+    # Current HTTP headers with random user agent.
+    current = HTTPHeaders(USER_AGENT_FILE)
+
     # Custom download directory.
     if args.output:
         # Check if the output path exists.
         if not os.path.exists(args.output):
             sys.exit("Path doesn't exist.")
-        file = Downloader(args.output)
+        file = Downloader(current.headers, args.output)
     else:
-        file = Downloader()
+        file = Downloader(current.headers)
 
     # Clean and check that the url i working before downloading.
     post_url = clean(args.url)

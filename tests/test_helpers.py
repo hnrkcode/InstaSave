@@ -1,7 +1,7 @@
 import unittest
 import requests
 from unittest.mock import patch, mock_open
-from preservig.helpers import clean, url_exists, random_useragent
+from preservig.helpers import clean, url_exists, HTTPHeaders
 from requests.exceptions import ConnectionError, MissingSchema, Timeout
 
 
@@ -40,7 +40,7 @@ class TestHelpers(unittest.TestCase):
         file = "file.txt"
         msg = f"^No such file or directory: {file}$"
         with self.assertRaisesRegex(SystemExit, msg):
-            random_useragent(file)
+            HTTPHeaders(file)
 
     def test_random_useragent_return_value(self):
         with patch(
@@ -48,11 +48,11 @@ class TestHelpers(unittest.TestCase):
                 new_callable=mock_open,
                 read_data=self.useragents) as mock_file:
             # Mock a file to open and return one random line from read_data.
-            ua = random_useragent("some/path/some_file.txt")
+            ua = HTTPHeaders("some/path/some_file.txt")
             # Create a list of user agents in the string passed to read_data.
             ua_list = self.useragents.splitlines()
             # Make sure that the returned user agent also appears in the list.
-            self.assertIn(ua, ua_list)
+            self.assertIn(ua.headers["User-Agent"], ua_list)
 
     def test_clean_match(self):
         for url in self.match:
