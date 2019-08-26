@@ -2,7 +2,7 @@ import sys
 import os.path
 import argparse
 import instagram
-from helper import clean, is_working
+from helpers import clean, is_working
 
 
 def main():

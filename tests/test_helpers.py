@@ -1,13 +1,19 @@
 import unittest
 import requests
-from unittest.mock import patch
-from url import clean, is_working
+from unittest.mock import patch, mock_open
+from preservig.helpers import clean, is_working, random_useragent
 from requests.exceptions import ConnectionError, MissingSchema, Timeout
 
 
-class TestCleanURL(unittest.TestCase):
+class TestHelpers(unittest.TestCase):
 
     def setUp(self):
+        self.useragents = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n" + \
+            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n" + \
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n" + \
+            "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:48.0) Gecko/20100101 Firefox/48.0\n" + \
+            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0\n"
+
         # Strings that should match the regular expression of a IG post url,
         # but a match doesn't mean it's an existing and working url
         # the is_working() function is checking that.
@@ -29,6 +35,24 @@ class TestCleanURL(unittest.TestCase):
             "asdf",
             "1234",
         ]
+
+    def test_random_useragent_file_not_found(self):
+        file = "file.txt"
+        msg = f"^No such file or directory: {file}$"
+        with self.assertRaisesRegex(SystemExit, msg):
+            random_useragent(file)
+
+    def test_random_useragent_return_value(self):
+        with patch(
+                "builtins.open",
+                new_callable=mock_open,
+                read_data=self.useragents) as mock_file:
+            # Mock a file to open and return one random line from read_data.
+            ua = random_useragent("some/path/some_file.txt")
+            # Create a list of user agents in the string passed to read_data.
+            ua_list = self.useragents.splitlines()
+            # Make sure that the returned user agent also appears in the list.
+            self.assertIn(ua, ua_list)
 
     def test_clean_match(self):
         for url in self.match:

@@ -2,9 +2,9 @@ import os
 import json
 import random
 import requests
-from helper import random_useragent
 from datetime import datetime
 from bs4 import BeautifulSoup
+from helpers import random_useragent
 from settings import POST_DATE_FORMAT, USER_AGENT_FILE
 
 
