@@ -1,7 +1,7 @@
 import unittest
 import requests
 from unittest.mock import patch, mock_open
-from preservig.helpers import clean, is_working, random_useragent
+from preservig.helpers import clean, url_exists, random_useragent
 from requests.exceptions import ConnectionError, MissingSchema, Timeout
 
 
@@ -16,7 +16,7 @@ class TestHelpers(unittest.TestCase):
 
         # Strings that should match the regular expression of a IG post url,
         # but a match doesn't mean it's an existing and working url
-        # the is_working() function is checking that.
+        # the url_exists() function is checking that.
         self.match = [
             "https://www.instagram.com/p/B1ZFAoEgtoQ/?utm_source=web",
             "https://www.instagram.com/p/aaaaaaaaaaa/",
@@ -67,26 +67,26 @@ class TestHelpers(unittest.TestCase):
                 clean(url)
 
     @patch.object(requests, 'get', side_effect=MissingSchema)
-    def test_is_working_raises_missing_schema_message(self, mock_requests):
+    def test_url_exists_raises_missing_schema_message(self, mock_requests):
         with self.assertRaisesRegex(SystemExit, "^Invalid URL$"):
-            is_working("URL")
+            url_exists("URL")
 
     @patch.object(requests, 'get', side_effect=ConnectionError)
-    def test_is_working_raises_connection_error_message(self, mock_requests):
+    def test_url_exists_raises_connection_error_message(self, mock_requests):
         with self.assertRaisesRegex(SystemExit, "^Connection error$"):
-            is_working("URL")
+            url_exists("URL")
 
     @patch.object(requests, 'get', side_effect=Timeout)
-    def test_is_working_raises_timeout_message(self, mock_requests):
+    def test_url_exists_raises_timeout_message(self, mock_requests):
         with self.assertRaisesRegex(SystemExit, "^Timeout$"):
-            is_working("URL")
+            url_exists("URL")
 
     @patch('requests.get')
-    def test_is_working_response_ok(self, mock_requests):
+    def test_url_exists_response_ok(self, mock_requests):
         mock_requests.return_value.status_code = requests.codes.ok
-        self.assertTrue(is_working("URL"))
+        self.assertTrue(url_exists("URL"))
 
     @patch('requests.get')
-    def test_is_working_response_not_found(self, mock_requests):
+    def test_url_exists_response_not_found(self, mock_requests):
         mock_requests.return_value.status_code = requests.codes.not_found
-        self.assertFalse(is_working("URL"))
+        self.assertFalse(url_exists("URL"))

@@ -1,8 +1,7 @@
-import sys
 import os.path
 import argparse
-import instagram
-from helpers import clean, is_working
+from instagram.post import Downloader
+from helpers import clean, url_exists
 
 
 def main():
@@ -16,15 +15,15 @@ def main():
         # Check if the output path exists.
         if not os.path.exists(args.output):
             sys.exit("Path doesn't exist.")
-        post = instagram.PostScraper(args.output)
+        file = Downloader(args.output)
     else:
-        post = instagram.PostScraper()
+        file = Downloader()
 
     # Clean and check that the url i working before downloading.
     post_url = clean(args.url)
-    if not is_working(post_url):
-        sys.exit("Sorry, this page isn't available.")
-    post.download(post_url)
+    if not url_exists(post_url):
+        raise SystemExit("Sorry, this page isn't available.")
+    file.download(post_url)
 
 
 if __name__ == '__main__':

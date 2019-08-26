@@ -8,11 +8,10 @@ from helpers import random_useragent
 from settings import POST_DATE_FORMAT, USER_AGENT_FILE
 
 
-class PostScraper:
+class Downloader:
 
     def __init__(self, output=None):
         self.headers = {"User-Agent": random_useragent(USER_AGENT_FILE)}
-        print(self.headers)
         self.output = output
 
     @property

@@ -33,7 +33,7 @@ def clean(url):
     return clean_url
 
 
-def is_working(url):
+def url_exists(url):
     """Check if the URL is working."""
 
     try:
