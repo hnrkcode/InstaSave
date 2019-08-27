@@ -7,11 +7,82 @@ from bs4 import BeautifulSoup
 from settings import POST_DATE_FORMAT
 
 
+class PostScraper:
+
+    def __init__(self, headers):
+        self.headers = headers
+
+    def post_data(self, url):
+        """Extract type and file URLs from dict and retrun it."""
+        # Dict with data extracted from the HTML of the url parameter.
+        data = self._json_data(url, self.headers)
+
+        type = self._get_type(data)
+        url = self._get_url(data, type)
+
+        return (url, type)
+
+    def _json_data(self, url, headers):
+        """Get JSON from javascript and deserialize it into a Python dict."""
+
+        # Get the page's HTML code and parse it with BeautifulSoup
+        # to find the type of the post.
+        r = requests.get(url, headers=headers)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        # Get all scripts in the HTML.
+        script = soup.select("script[type='text/javascript']")
+        # Pick the fourth script and remove variable name and semicolon.
+        json_data = script[3].text[21:-1]
+        # Deserialize the data to a python dict.
+        data = json.loads(json_data)
+        # Return data from this position in the dict.
+        data = data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+
+        return data
+
+    def _get_type(self, data):
+        """Get the type of Instagram post."""
+        # Return the type of the post.
+        return data["__typename"]
+
+    def _get_url(self, data, type):
+        """Get the urls to the files in a Instagram post."""
+        # Post with a video file.
+        if type == "GraphVideo":
+            url = data["video_url"]
+        # Post with a image file.
+        elif type == "GraphImage":
+            url = data["display_url"]
+        # Post with multiple files, either images and/or videos.
+        elif type == "GraphSidecar":
+            edges = data["edge_sidecar_to_children"]["edges"]
+            # Differentiate between images and videos in multi-content posts.
+            # Get urls with .jpg for images and .mp4 for videos.
+            url = [edge["node"]["video_url"] if edge["node"]["__typename"] == "GraphVideo" else edge["node"]["display_url"] for edge in edges]
+
+        return url
+
+    # def _get_meta(self, data):
+    #     """Get information about the Instagram post."""
+    #
+    #     accessibility = data["accessibility_caption"]
+    #     username = data["owner"]["username"]
+    #     fullname = data["owner"]["full_name"]
+    #     caption = data["edge_media_to_caption"]["edges"][0]["node"]["text"]
+    #     is_edited = data["caption_is_edited"]
+    #     comment_count = data["edge_media_to_parent_comment"]["count"]
+    #     like_count = data["edge_media_preview_like"]["count"]
+    #     location = data["location"]["name"]
+    #
+    #     return country
+
+
 class Downloader:
 
     def __init__(self, headers, output=None):
         self.headers = headers
         self.output = output
+        self.scraper = PostScraper(headers)
 
     @property
     def output(self):
@@ -29,7 +100,7 @@ class Downloader:
     def download(self, url):
         """Download files to disk."""
 
-        post_urls, post_type = self._get_post_data(url)
+        post_urls, post_type = self.scraper.post_data(url)
 
         # Post with a video file.
         if post_type == "GraphVideo":
@@ -41,39 +112,6 @@ class Downloader:
         elif post_type == "GraphSidecar":
             for url in post_urls:
                 self._download_file(url)
-
-    def _get_post_data(self, url):
-        """Returns the file URLs and the post type."""
-
-        # Get the page's HTML code and parse it with BeautifulSoup
-        # to find the type of the post.
-        html = requests.get(url, headers=self.headers)
-        soup = BeautifulSoup(html.text, 'html.parser')
-        # Get all scripts in the HTML.
-        js = soup.select("script[type='text/javascript']")
-        # Pick the fourth script and remove variable name and semicolon.
-        json_data = js[3].text[21:-1]
-        # Deserialize the data to a python object and access the information
-        # at the 'shortcode_media' key.
-        data = json.loads(json_data)
-        data = data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
-        # Get the type of the post.
-        post_type = data["__typename"]
-
-        # Post with a video file.
-        if post_type == "GraphVideo":
-            image_url = data["video_url"]
-        # Post with a image file.
-        elif post_type == "GraphImage":
-            image_url = data["display_url"]
-        # Post with multiple files, either images and/or videos.
-        elif post_type == "GraphSidecar":
-            edges = data["edge_sidecar_to_children"]["edges"]
-            # Differentiate between images and videos in multi-content posts.
-            # Get urls with .jpg for images and .mp4 for videos.
-            image_url = [edge["node"]["video_url"] if edge["node"]["__typename"] == "GraphVideo" else edge["node"]["display_url"] for edge in edges]
-
-        return image_url, post_type
 
     def _download_file(self, url):
         """Get content from the url, pick a name for the file and save it."""
