@@ -4,6 +4,7 @@ from instagram.post import PostScraper
 from utils.settings import USER_AGENT_FILE
 from utils.helpers import HTTPHeaders
 
+
 class TestPostScraper(unittest.TestCase):
 
     def setUp(self):
@@ -59,8 +60,8 @@ class TestPostScraper(unittest.TestCase):
 
     @patch("instagram.post.PostScraper._json_data")
     def test_post_data_graphimage(self, mock_json_data):
-        mock_json_data.return_value = self.graphimage["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        mock_json_data.return_value = self.graphimage[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper.post_data("someurl")
         want = ("GRAPH IMAGE URL", "GraphImage")
         self.assertEqual(got, want)
@@ -68,8 +69,8 @@ class TestPostScraper(unittest.TestCase):
 
     @patch("instagram.post.PostScraper._json_data")
     def test_post_data_graphvideo(self, mock_json_data):
-        mock_json_data.return_value = self.graphvideo["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        mock_json_data.return_value = self.graphvideo[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper.post_data("someurl")
         want = ("GRAPH VIDEO URL", "GraphVideo")
         self.assertEqual(got, want)
@@ -77,8 +78,8 @@ class TestPostScraper(unittest.TestCase):
 
     @patch("instagram.post.PostScraper._json_data")
     def test_post_data_graphsidecar(self, mock_json_data):
-        mock_json_data.return_value = self.graphsidecar["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        mock_json_data.return_value = self.graphsidecar[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper.post_data("someurl")
         want = (["GRAPH SIDECAR URL 1", "GRAPH SIDECAR URL 2"], "GraphSidecar")
         self.assertEqual(got, want)
@@ -89,22 +90,22 @@ class TestPostScraper(unittest.TestCase):
     #     pass
 
     def test_get_type_graphimage(self):
-        data = self.graphimage["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        data = self.graphimage[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_type(data)
         want = "GraphImage"
         self.assertEqual(got, want)
 
     def test_get_type_graphvideo(self):
-        data = self.graphvideo["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        data = self.graphvideo[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_type(data)
         want = "GraphVideo"
         self.assertEqual(got, want)
 
     def test_get_type_graphsidecar(self):
-        data = self.graphsidecar["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        data = self.graphsidecar[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_type(data)
         want = "GraphSidecar"
         self.assertEqual(got, want)
@@ -114,25 +115,26 @@ class TestPostScraper(unittest.TestCase):
             self.scraper._get_type(self.graphimage)
 
     def test_get_url_graphvideo(self):
-        data = self.graphvideo["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        data = self.graphvideo[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_url(data, "GraphVideo")
         want = "GRAPH VIDEO URL"
         self.assertEqual(got, want)
 
     def test_get_url_graphimage(self):
-        data = self.graphimage["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        data = self.graphimage[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_url(data, "GraphImage")
         want = "GRAPH IMAGE URL"
         self.assertEqual(got, want)
 
     def test_get_url_graphsidecar(self):
-        data = self.graphsidecar["entry_data"] \
-            ["PostPage"][0]["graphql"]["shortcode_media"]
+        data = self.graphsidecar[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_url(data, "GraphSidecar")
         want = ["GRAPH SIDECAR URL 1", "GRAPH SIDECAR URL 2"]
         self.assertEqual(got, want)
+
 
 class TestDownloader(unittest.TestCase):
     pass

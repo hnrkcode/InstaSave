@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 from utils.decorators import start_at_shortcode_media
 
+
 class TestDecorators(unittest.TestCase):
 
     def setUp(self):
@@ -76,5 +77,6 @@ class TestDecorators(unittest.TestCase):
         data = start_at_shortcode_media(data_func)
         got = data()
         self.assertEqual(got["__typename"], "GraphSidecar")
-        self.assertEqual(got["edge_sidecar_to_children"]["edges"] \
-            [0]["node"]["__typename"], "GraphVideo")
+        self.assertEqual(got[
+            "edge_sidecar_to_children"]["edges"][0]["node"]["__typename"],
+            "GraphVideo")
