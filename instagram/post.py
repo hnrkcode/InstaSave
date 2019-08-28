@@ -4,6 +4,7 @@ import random
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
+from utils.decorators import start_at_shortcode_media
 
 
 class PostScraper:
@@ -21,6 +22,7 @@ class PostScraper:
 
         return (url, type)
 
+    @start_at_shortcode_media
     def _json_data(self, url):
         """Get JSON from javascript and deserialize it into a Python dict."""
 
@@ -34,8 +36,6 @@ class PostScraper:
         json_data = script[3].text[21:-1]
         # Deserialize the data to a python dict.
         data = json.loads(json_data)
-        # Return data from this position in the dict.
-        data = data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
 
         return data
 

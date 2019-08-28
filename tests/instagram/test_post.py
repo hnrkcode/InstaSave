@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch
-from preservig.instagram.post import PostScraper
-from preservig.settings import USER_AGENT_FILE
-from preservig.helpers import HTTPHeaders
+from instagram.post import PostScraper
+from utils.settings import USER_AGENT_FILE
+from utils.helpers import HTTPHeaders
 
 class TestPostScraper(unittest.TestCase):
 
@@ -57,7 +57,7 @@ class TestPostScraper(unittest.TestCase):
             }
         }
 
-    @patch("preservig.instagram.post.PostScraper._json_data")
+    @patch("instagram.post.PostScraper._json_data")
     def test_post_data(self, mock_json_data):
         # Test graphimage.
         mock_json_data.return_value = self.graphimage["entry_data"] \

@@ -1,7 +1,7 @@
 import unittest
 import requests
 from unittest.mock import patch, mock_open
-from preservig.helpers import clean, url_exists, HTTPHeaders
+from utils.helpers import clean, url_exists, HTTPHeaders
 from requests.exceptions import ConnectionError, MissingSchema, Timeout
 
 
