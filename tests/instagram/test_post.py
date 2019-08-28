@@ -58,46 +58,51 @@ class TestPostScraper(unittest.TestCase):
         }
 
     @patch("instagram.post.PostScraper._json_data")
-    def test_post_data(self, mock_json_data):
-        # Test graphimage.
+    def test_post_data_graphimage(self, mock_json_data):
         mock_json_data.return_value = self.graphimage["entry_data"] \
             ["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper.post_data("someurl")
         want = ("GRAPH IMAGE URL", "GraphImage")
         self.assertEqual(got, want)
-        # Test graphvideo.
+        mock_json_data.assert_called_once()
+
+    @patch("instagram.post.PostScraper._json_data")
+    def test_post_data_graphvideo(self, mock_json_data):
         mock_json_data.return_value = self.graphvideo["entry_data"] \
             ["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper.post_data("someurl")
         want = ("GRAPH VIDEO URL", "GraphVideo")
         self.assertEqual(got, want)
-        # Test graphsidecar.
+        mock_json_data.assert_called_once()
+
+    @patch("instagram.post.PostScraper._json_data")
+    def test_post_data_graphsidecar(self, mock_json_data):
         mock_json_data.return_value = self.graphsidecar["entry_data"] \
             ["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper.post_data("someurl")
         want = (["GRAPH SIDECAR URL 1", "GRAPH SIDECAR URL 2"], "GraphSidecar")
         self.assertEqual(got, want)
+        mock_json_data.assert_called_once()
 
-        assert 3 == mock_json_data.call_count
+    # TODO: write test for this method later.
+    # def test_json_data(self):
+    #     pass
 
-    def test_json_data(self):
-        pass
-
-    def test_get_type_return_graphimage(self):
+    def test_get_type_graphimage(self):
         data = self.graphimage["entry_data"] \
             ["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_type(data)
         want = "GraphImage"
         self.assertEqual(got, want)
 
-    def test_get_type_return_graphvideo(self):
+    def test_get_type_graphvideo(self):
         data = self.graphvideo["entry_data"] \
             ["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_type(data)
         want = "GraphVideo"
         self.assertEqual(got, want)
 
-    def test_get_type_return_graphsidecar(self):
+    def test_get_type_graphsidecar(self):
         data = self.graphsidecar["entry_data"] \
             ["PostPage"][0]["graphql"]["shortcode_media"]
         got = self.scraper._get_type(data)
