@@ -4,7 +4,6 @@ import random
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
-from settings import POST_DATE_FORMAT
 
 
 class PostScraper:
@@ -15,19 +14,19 @@ class PostScraper:
     def post_data(self, url):
         """Extract type and file URLs from dict and retrun it."""
         # Dict with data extracted from the HTML of the url parameter.
-        data = self._json_data(url, self.headers)
+        data = self._json_data(url)
 
         type = self._get_type(data)
         url = self._get_url(data, type)
 
         return (url, type)
 
-    def _json_data(self, url, headers):
+    def _json_data(self, url):
         """Get JSON from javascript and deserialize it into a Python dict."""
 
         # Get the page's HTML code and parse it with BeautifulSoup
         # to find the type of the post.
-        r = requests.get(url, headers=headers)
+        r = requests.get(url, headers=self.headers)
         soup = BeautifulSoup(r.text, 'html.parser')
         # Get all scripts in the HTML.
         script = soup.select("script[type='text/javascript']")
@@ -124,7 +123,8 @@ class Downloader:
         """Give the file a unique name."""
 
         # Get the date the post was uploaded.
-        d = datetime.strptime(headers.get('last-modified'), POST_DATE_FORMAT)
+        post_date_format = "%a, %d %b %Y %H:%M:%S %Z"
+        d = datetime.strptime(headers.get('last-modified'), post_date_format)
         # Format the date and time and use it in the filename.
         filename = d.strftime("%Y%m%d_%H%M%S_")
         # Add a unique string to the filename to prevent conflicting names.
