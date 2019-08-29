@@ -4,23 +4,45 @@ import random
 import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
-from utils.decorators import start_at_shortcode_media
+from utils.decorators import start_at_shortcode_media, unique_filename
 
 
 class PostScraper:
 
     def __init__(self, headers):
         self.headers = headers
+        self.data = None
 
     def post_data(self, url):
         """Extract type and file URLs from dict and retrun it."""
         # Dict with data extracted from the HTML of the url parameter.
-        data = self._json_data(url)
+        self.data = self._json_data(url)
 
-        type = self._get_type(data)
-        url = self._get_url(data, type)
+        type = self._get_type(self.data)
+        url = self._get_url(self.data, type)
 
         return (url, type)
+
+    def get_username(self):
+        """Return post creators username."""
+        try:
+            username = self.data["owner"]["username"]
+        except KeyError as e:
+            raise SystemExit(f"KeyError: {e}")
+
+        return username
+
+    def get_created_at(self):
+        """Return post creation date and time."""
+        try:
+            t = self.data["taken_at_timestamp"]
+            # Convert unix timestamp to custom date format.
+            date = datetime.utcfromtimestamp(t).strftime("_%Y%m%d%H%M%S")
+        except KeyError as e:
+            raise SystemExit(f"KeyError: {e}")
+
+        return date
+
 
     @start_at_shortcode_media
     def _json_data(self, url):
@@ -60,20 +82,6 @@ class PostScraper:
             url = [edge["node"]["video_url"] if edge["node"]["__typename"] == "GraphVideo" else edge["node"]["display_url"] for edge in edges]
 
         return url
-
-    # def _get_meta(self, data):
-    #     """Get information about the Instagram post."""
-    #
-    #     accessibility = data["accessibility_caption"]
-    #     username = data["owner"]["username"]
-    #     fullname = data["owner"]["full_name"]
-    #     caption = data["edge_media_to_caption"]["edges"][0]["node"]["text"]
-    #     is_edited = data["caption_is_edited"]
-    #     comment_count = data["edge_media_to_parent_comment"]["count"]
-    #     like_count = data["edge_media_preview_like"]["count"]
-    #     location = data["location"]["name"]
-    #
-    #     return country
 
 
 class Downloader:
@@ -119,16 +127,14 @@ class Downloader:
         filename = self._pick_filename(r.headers)
         self._save(r.content, filename)
 
+    @unique_filename
     def _pick_filename(self, headers):
-        """Give the file a unique name."""
+        """Create a filename based username, date and file type.
 
-        # Get the date the post was uploaded.
-        post_date_format = "%a, %d %b %Y %H:%M:%S %Z"
-        d = datetime.strptime(headers.get('last-modified'), post_date_format)
-        # Format the date and time and use it in the filename.
-        filename = d.strftime("%Y%m%d_%H%M%S_")
-        # Add a unique string to the filename to prevent conflicting names.
-        filename += headers.get('x-enc-origin-req-handler')
+            Example: [username]_[post date].[file extension]"""
+
+        filename = self.scraper.get_username()
+        filename += self.scraper.get_created_at()
         # Add file extension based on the contents type.
         if headers.get('content-type') == "video/mp4":
             filename += ".mp4"
