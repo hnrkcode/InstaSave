@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from utils.decorators import start_at_shortcode_media
+from utils.decorators import start_at_shortcode_media, unique_filename
 
 
 class TestDecorators(unittest.TestCase):
@@ -80,3 +80,10 @@ class TestDecorators(unittest.TestCase):
         self.assertEqual(got[
             "edge_sidecar_to_children"]["edges"][0]["node"]["__typename"],
             "GraphVideo")
+
+    def test_unique_filename(self):
+        def filename_func():
+            return "generic_filename.jpg"
+        filename = unique_filename(filename_func)
+        got = filename()
+        self.assertRegex(got, "^generic_filename_[0-9a-z]{20}.jpg$")
