@@ -11,14 +11,18 @@ from utils.decorators import start_at_shortcode_media, unique_filename
 
 class PostScraper:
 
-    def __init__(self, headers):
+    def __init__(self, headers, verbose=False):
         self.headers = headers
         self.data = None
+        self.verbose = verbose
 
     def post_data(self, url):
         """Extract type and file URLs from dict and retrun it."""
         # Dict with data extracted from the HTML of the url parameter.
         self.data = self._json_data(url)
+        # Print information to terminal.
+        if self.verbose:
+            print(f"Scrape data from one of { self.get_username() }'s posts...")
 
         type = self._get_type(self.data)
         url = self._get_url(self.data, type)
@@ -88,10 +92,11 @@ class PostScraper:
 
 class Downloader:
 
-    def __init__(self, headers, output=None):
+    def __init__(self, headers, output=None, verbose=False):
         self.headers = headers
         self.output = output
-        self.scraper = PostScraper(headers)
+        self.scraper = PostScraper(headers, verbose=verbose)
+        self.verbose = verbose
 
     @property
     def output(self):
@@ -123,6 +128,11 @@ class Downloader:
         r = requests.get(url, headers=self.headers)
         filename = self._pick_filename(r.headers)
         self._save(r.content, filename)
+        # Print information to terminal.
+        if self.verbose:
+            file = r.headers['Content-Type']
+            user = self.scraper.get_username()
+            print(f"Download {file} from {user}...")
 
     @unique_filename
     def _pick_filename(self, headers):
