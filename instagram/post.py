@@ -109,18 +109,13 @@ class Downloader:
     def download(self, url):
         """Download files to disk."""
 
-        post_urls, post_type = self.scraper.post_data(url)
+        post_url, post_type = self.scraper.post_data(url)
 
-        # Post with a video file.
-        if post_type == "GraphVideo":
-            self._download_file(post_urls)
-        # Post with a image file.
-        elif post_type == "GraphImage":
-            self._download_file(post_urls)
-        # Post with multiple files, either images and/or videos.
-        elif post_type == "GraphSidecar":
-            for url in post_urls:
+        if post_type == "GraphSidecar":
+            for url in post_url:
                 self._download_file(url)
+        elif post_type in ["GraphVideo", "GraphImage"]:
+            self._download_file(post_url)
 
     def _download_file(self, url):
         """Get content from the url, pick a name for the file and save it."""
