@@ -1,8 +1,9 @@
 import unittest
 from unittest.mock import patch
+
 from instagram.post import PostScraper
-from utils.settings import USER_AGENT_FILE
 from utils.helpers import HTTPHeaders
+from utils.settings import USER_AGENT_FILE
 
 
 class TestPostScraper(unittest.TestCase):

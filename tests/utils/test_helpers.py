@@ -1,8 +1,10 @@
 import unittest
+from unittest.mock import mock_open, patch
+
 import requests
-from unittest.mock import patch, mock_open
-from utils.helpers import clean, url_exists, HTTPHeaders
 from requests.exceptions import ConnectionError, MissingSchema, Timeout
+
+from utils.helpers import HTTPHeaders, clean, url_exists
 
 
 class TestHelpers(unittest.TestCase):

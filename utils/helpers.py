@@ -1,5 +1,6 @@
-import re
 import random
+import re
+
 import requests
 
 

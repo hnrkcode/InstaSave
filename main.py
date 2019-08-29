@@ -1,7 +1,8 @@
-import os.path
 import argparse
+import os.path
+
 from instagram.post import Downloader
-from utils.helpers import clean, url_exists, HTTPHeaders
+from utils.helpers import HTTPHeaders, clean, url_exists
 from utils.settings import USER_AGENT_FILE
 
 
