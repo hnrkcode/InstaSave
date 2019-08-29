@@ -16,6 +16,10 @@ class TestPostScraper(unittest.TestCase):
                         "shortcode_media": {
                             "__typename": "GraphVideo",
                             "video_url": "GRAPH VIDEO URL",
+                            "taken_at_timestamp": 1567007901,
+                            "owner": {
+                                "username": "VIDEO USERNAME",
+                            },
                             }
                         }
                     }]
@@ -28,6 +32,10 @@ class TestPostScraper(unittest.TestCase):
                         "shortcode_media": {
                             "__typename": "GraphImage",
                             "display_url": "GRAPH IMAGE URL",
+                            "taken_at_timestamp": 1567007901,
+                            "owner": {
+                                "username": "IMAGE USERNAME",
+                            },
                             }
                         }
                     }]
@@ -39,6 +47,10 @@ class TestPostScraper(unittest.TestCase):
                     "graphql": {
                         "shortcode_media": {
                             "__typename": "GraphSidecar",
+                            "taken_at_timestamp": 1567007901,
+                            "owner": {
+                                "username": "SIDECAR USERNAME",
+                            },
                             "edge_sidecar_to_children": {
                                 "edges": [{
                                     "node": {
@@ -57,6 +69,10 @@ class TestPostScraper(unittest.TestCase):
                 }]
             }
         }
+
+    # TODO: write test for this method later.
+    # def test_json_data(self):
+    #     pass
 
     @patch("instagram.post.PostScraper._json_data")
     def test_post_data_graphimage(self, mock_json_data):
@@ -85,9 +101,41 @@ class TestPostScraper(unittest.TestCase):
         self.assertEqual(got, want)
         mock_json_data.assert_called_once()
 
-    # TODO: write test for this method later.
-    # def test_json_data(self):
-    #     pass
+    def test_get_username_graphvideo(self):
+        self.scraper.data = self.graphvideo[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+        got = self.scraper.get_username()
+        self.assertEqual(got, "VIDEO USERNAME")
+
+    def test_get_username_graphimage(self):
+        self.scraper.data = self.graphimage[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+        got = self.scraper.get_username()
+        self.assertEqual(got, "IMAGE USERNAME")
+
+    def test_get_username_graphsidecar(self):
+        self.scraper.data = self.graphsidecar[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+        got = self.scraper.get_username()
+        self.assertEqual(got, "SIDECAR USERNAME")
+
+    def test_get_created_at_graphvide(self):
+        self.scraper.data = self.graphvideo[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+        got = self.scraper.get_created_at()
+        self.assertEqual(got, "_20190828155821")
+
+    def test_get_created_at_graphimage(self):
+        self.scraper.data = self.graphimage[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+        got = self.scraper.get_created_at()
+        self.assertEqual(got, "_20190828155821")
+
+    def test_get_created_at_graphsidecar(self):
+        self.scraper.data = self.graphsidecar[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+        got = self.scraper.get_created_at()
+        self.assertEqual(got, "_20190828155821")
 
     def test_get_type_graphimage(self):
         data = self.graphimage[
