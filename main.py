@@ -32,8 +32,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-    #from instagram.post import PostScraper
-    #current = HTTPHeaders(USER_AGENT_FILE)
-    #p = PostScraper(current.headers)
-    #print(p.post_data("https://www.instagram.com/p/B0LqiitHLSC/"))
