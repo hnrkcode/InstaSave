@@ -56,10 +56,10 @@ class PostScraper:
 
         # Get the page's HTML code and parse it with BeautifulSoup
         # to find the type of the post.
-        r = requests.get(url, headers=self.headers)
-        soup = BeautifulSoup(r.text, 'html.parser')
+        r = requests.get(url, headers=self.headers).text
+        soup = BeautifulSoup(r, 'html.parser')
         # Get all scripts in the HTML.
-        script = soup.select("script[type='text/javascript']")
+        script = soup.select("script[type=\"text/javascript\"]")
         # Pick the fourth script and remove variable name and semicolon.
         json_data = script[3].text[21:-1]
         # Deserialize the data to a python dict.

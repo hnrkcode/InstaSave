@@ -1,3 +1,5 @@
+import io
+import sys
 import unittest
 from unittest.mock import patch
 
@@ -9,7 +11,10 @@ from utils.settings import USER_AGENT_FILE
 class TestPostScraper(unittest.TestCase):
 
     def setUp(self):
-        self.scraper = PostScraper(HTTPHeaders(USER_AGENT_FILE).headers)
+        self.headers = HTTPHeaders(USER_AGENT_FILE).headers
+        self.scraper = PostScraper(self.headers)
+        self.verbose_scraper = PostScraper(self.headers, verbose=True)
+
         self.graphvideo = {
             "entry_data": {
                 "PostPage": [{
@@ -26,6 +31,7 @@ class TestPostScraper(unittest.TestCase):
                     }]
                 }
             }
+
         self.graphimage = {
             "entry_data": {
                 "PostPage": [{
@@ -42,6 +48,7 @@ class TestPostScraper(unittest.TestCase):
                     }]
                 }
             }
+
         self.graphsidecar = {
             "entry_data": {
                 "PostPage": [{
@@ -71,9 +78,33 @@ class TestPostScraper(unittest.TestCase):
             }
         }
 
-    # TODO: write test for this method later.
-    # def test_json_data(self):
-    #     pass
+        self.html_code = "<html><head> \
+            <script type=\"text/javascript\"></script>\
+            <script type=\"text/javascript\"></script> \
+            <script type=\"text/javascript\"></script> </head><body> \
+            <script type=\"text/javascript\">window._sharedData = " + \
+            str(self.graphimage).replace("\'", "\"") + \
+            ";</script> \
+            </body></html>"
+
+    @patch("requests.get")
+    def test_json_data(self, mock_requests):
+         mock_requests.return_value = mock_requests.models.Response
+         mock_requests.return_value.text = self.html_code
+         got = self.scraper._json_data("someurl")
+         self.assertEqual(got["owner"]["username"], "IMAGE USERNAME")
+
+    @patch("instagram.post.PostScraper._json_data")
+    def test_post_data_verbose_message(self, mock_json_data):
+        mock_json_data.return_value = self.graphimage[
+            "entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        self.verbose_scraper.post_data("someurl")
+        sys.stdout = sys.__stdout__
+        got = captured_output.getvalue()
+        want = "Scrape data from one of IMAGE USERNAME's posts...\n"
+        self.assertEqual(got, want)
 
     @patch("instagram.post.PostScraper._json_data")
     def test_post_data_graphimage(self, mock_json_data):
