@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import random
@@ -5,6 +6,7 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
+from PIL import Image
 
 from utils.decorators import start_at_shortcode_media, unique_filename
 
@@ -150,39 +152,24 @@ class Downloader:
 
         return filename
 
-    def _save(self, content, filename):
+    def _save(self, buffer, filename):
         """Write content to file."""
 
         # Create folder for downloaded files if it not exist.
         if not os.path.isdir(self.output):
             os.mkdir(self.output)
-        # Write content to file.
-        with open(os.path.join(self.output, filename), 'wb') as f:
-            self._write(content, f)
-
-    def _write(self, buffer, file):
-        """Write data to file."""
-        # JPEG file signature.
-        # The first two bytes are always FF D8.
-        # The third and fourth bytes are FF Ex (where x = 0..F) which referres
-        # to APP0 - APP15, and contain application-specific information.
+        # JPEG file signature always start with FF D8.
+        # The other two bytes are FF Ex (x = 0-F).
         if buffer[:3] == b"\xff\xd8\xff" and (buffer[3] & 0xe0) == 0xe0:
-            # Current position in the buffer.
-            cur = 0
-            for byte in buffer:
-                # Remove IPTC special instructions from jpeg file, because it
-                # could be used for tracking usage of downloaded images.
-                if cur > 22 and cur < 146:
-                    file.write(bytes(1))
-                # Write unmodified data.
-                else:
-                    file.write(bytes([byte]))
-                cur += 1
-        # MP4 file signature, offset by 4 bytes.
-        # The first four bytes are the same in both types.
-        # 66 74 79 70 69 73 6F 6D - ISO Base Media file (MPEG-4) v1.
-        # 66 74 79 70 4D 53 4E 56 - MPEG-4 video file.
+            bytes = io.BytesIO(buffer)
+            output = os.path.join(self.output, filename)
+            # Save the image with Pillow to remove any unwanted meta data.
+            # Also try to keep the same quality when saved.
+            Image.open(bytes).save(output, quality="keep")
+        # MP4 file signatures are 8 bytes long and are offset by 4 bytes.
+        # The first four bytes are the same in both types of MP4 file formats.
         elif buffer[4:8] == b"\x66\x74\x79\x70" and \
                 buffer[8:12] == b"\x69\x73\x6f\x6d" or \
                 buffer[8:12] == b"\x4d\x53\x4e\x56":
-            file.write(buffer)
+            with open(os.path.join(self.output, filename), 'wb') as f:
+                f.write(buffer)
