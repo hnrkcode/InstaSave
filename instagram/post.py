@@ -1,4 +1,3 @@
-import io
 import json
 import os
 import random
@@ -6,9 +5,9 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
-from PIL import Image
 
 from utils.decorators import start_at_shortcode_media, unique_filename
+from utils.helpers import save_file
 
 
 class PostScraper:
@@ -129,7 +128,7 @@ class Downloader:
 
         r = requests.get(url, headers=self.headers)
         filename = self._pick_filename(r.headers)
-        self._save(r.content, filename)
+        save_file(r.content, self.output, filename)
         # Print information to terminal.
         if self.verbose:
             file = r.headers['Content-Type']
@@ -151,25 +150,3 @@ class Downloader:
             filename += ".jpg"
 
         return filename
-
-    def _save(self, buffer, filename):
-        """Write content to file."""
-
-        # Create folder for downloaded files if it not exist.
-        if not os.path.isdir(self.output):
-            os.mkdir(self.output)
-        # JPEG file signature always start with FF D8.
-        # The other two bytes are FF Ex (x = 0-F).
-        if buffer[:3] == b"\xff\xd8\xff" and (buffer[3] & 0xe0) == 0xe0:
-            bytes = io.BytesIO(buffer)
-            output = os.path.join(self.output, filename)
-            # Save the image with Pillow to remove any unwanted meta data.
-            # Also try to keep the same quality when saved.
-            Image.open(bytes).save(output, quality="keep")
-        # MP4 file signatures are 8 bytes long and are offset by 4 bytes.
-        # The first four bytes are the same in both types of MP4 file formats.
-        elif buffer[4:8] == b"\x66\x74\x79\x70" and \
-                buffer[8:12] == b"\x69\x73\x6f\x6d" or \
-                buffer[8:12] == b"\x4d\x53\x4e\x56":
-            with open(os.path.join(self.output, filename), 'wb') as f:
-                f.write(buffer)

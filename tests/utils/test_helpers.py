@@ -92,3 +92,7 @@ class TestHelpers(unittest.TestCase):
     def test_url_exists_response_not_found(self, mock_requests):
         mock_requests.return_value.status_code = requests.codes.not_found
         self.assertFalse(url_exists("URL"))
+
+    # TODO: write test for save_file().
+    #def test_save_file(self):
+    #    pass

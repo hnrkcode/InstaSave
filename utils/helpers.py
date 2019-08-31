@@ -1,7 +1,10 @@
+import io
+import os
 import random
 import re
 
 import requests
+from PIL import Image
 
 
 class HTTPHeaders:
@@ -72,3 +75,26 @@ def url_exists(url):
         return False
 
     return True
+
+
+def save_file(buffer, output, filename):
+    """Write content to file."""
+
+    # Create folder for downloaded files if it not exist.
+    if not os.path.isdir(output):
+        os.mkdir(output)
+    # JPEG file signature always start with FF D8.
+    # The other two bytes are FF Ex (x = 0-F).
+    if buffer[:3] == b"\xff\xd8\xff" and (buffer[3] & 0xe0) == 0xe0:
+        bytes = io.BytesIO(buffer)
+        op = os.path.join(output, filename)
+        # Save the image with Pillow to remove any unwanted meta data.
+        # Also try to keep the same quality when saved.
+        Image.open(bytes).save(op, quality="keep")
+    # MP4 file signatures are 8 bytes long and are offset by 4 bytes.
+    # The first four bytes are the same in both types of MP4 file formats.
+    elif buffer[4:8] == b"\x66\x74\x79\x70" and \
+            buffer[8:12] == b"\x69\x73\x6f\x6d" or \
+            buffer[8:12] == b"\x4d\x53\x4e\x56":
+        with open(os.path.join(output, filename), 'wb') as f:
+            f.write(buffer)
