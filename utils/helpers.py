@@ -45,15 +45,29 @@ def clean(url):
     """Check if it's a link to a post and remove UTM code."""
 
     # Pattern that match a link to an Instagram post.
-    pattern = "^http[s]?://www.instagram.com/p/[a-zA-Z0-9_-]{11}"
-    match = re.match(pattern, url)
+    match = re.match("^http[s]?://www.instagram.com/p/[a-zA-Z0-9_-]{11}", url)
     # Shut down the program if the URL didn't match the pattern.
     if not match:
-        raise SystemExit("Not a link to an Instagram post")
+        if is_user(url):
+            raise SystemExit("Need to use the -p or --posts flag.")
+        else:
+            raise SystemExit("Not a link to an Instagram post or user")
     # If the link had any UTM code, it's now removed.
     clean_url = match.group()
 
     return clean_url
+
+
+def is_user(text):
+    # Pattern that match a link to an Instagram user profile.
+    url = re.match("^http[s]?://www.instagram.com/[a-zA-Z0-9_]{2,30}", text)
+    # Pattern that match a valid Instagram username.
+    name = re.match("^[a-zA-Z0-9_]{2,30}$", text)
+    if url:
+        return url.group()
+    elif name:
+        return "https://www.instagram.com/" + name.group()
+    return ""
 
 
 def url_exists(url):

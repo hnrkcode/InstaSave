@@ -3,3 +3,5 @@ downloads/
 *.mp4
 *.jpg
 useragents.txt
+*.log
+geckodriver
