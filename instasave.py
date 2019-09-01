@@ -20,7 +20,6 @@ def main():
     current = HTTPHeaders(USER_AGENT_FILE)
     # Get latest geckdriver for the system if isn't already in path.
     GeckoLoader(current.headers)
-    raise SystemExit("end test")
     # List of urls to posts that will be downloaded.
     url_list = [args.url]
 
