@@ -28,6 +28,8 @@ class WebDriver:
                 firefox_options=options,
                 executable_path=settings.GECKODRIVER
             )
+        except TypeError as e:
+            sys.exit(e)
         except exceptions.WebDriverException as e:
             sys.exit(e)
 

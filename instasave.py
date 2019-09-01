@@ -3,7 +3,7 @@ import os.path
 
 from instagram.post import Downloader
 from instagram.url import URLScraper
-from utils.helpers import HTTPHeaders, clean, is_user, url_exists
+from utils.helpers import HTTPHeaders, clean, is_user, url_exists, get_geckodriver
 from utils.settings import USER_AGENT_FILE
 
 
@@ -17,6 +17,8 @@ def main():
 
     # Current HTTP headers with random user agent.
     current = HTTPHeaders(USER_AGENT_FILE)
+    # Get latest geckdriver for the system if isn't already in path.
+    get_geckodriver(current.headers)
     # List of urls to posts that will be downloaded.
     url_list = [args.url]
 
