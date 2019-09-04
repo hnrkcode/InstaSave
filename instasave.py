@@ -12,9 +12,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="Url to the Instagram post.")
     parser.add_argument("-o", "--output", help="Custom output path.")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Print download information.")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Print download information."
+    )
     parser.add_argument("-p", "--posts", type=int)
-    parser.add_argument("-t", "--hashtag", action="store_true", help="Scrape posts under a hashtag.")
+    parser.add_argument(
+        "-t", "--hashtag", action="store_true", help="Scrape posts under a hashtag."
+    )
     args = parser.parse_args()
 
     # Current HTTP headers with random user agent.
@@ -56,5 +60,5 @@ def main():
         file.download(post_url)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

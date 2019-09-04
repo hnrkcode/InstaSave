@@ -11,7 +11,6 @@ from utils.helpers import save_file
 
 
 class PostScraper:
-
     def __init__(self, headers, verbose=False):
         self.headers = headers
         self.data = None
@@ -50,7 +49,6 @@ class PostScraper:
 
         return date
 
-
     @start_at_shortcode_media
     def _json_data(self, url):
         """Get JSON from javascript and deserialize it into a Python dict."""
@@ -58,9 +56,9 @@ class PostScraper:
         # Get the page's HTML code and parse it with BeautifulSoup
         # to find the type of the post.
         r = requests.get(url, headers=self.headers).text
-        soup = BeautifulSoup(r, 'html.parser')
+        soup = BeautifulSoup(r, "html.parser")
         # Get all scripts in the HTML.
-        script = soup.select("script[type=\"text/javascript\"]")
+        script = soup.select('script[type="text/javascript"]')
         # Pick the fourth script and remove variable name and semicolon.
         json_data = script[3].text[21:-1]
         # Deserialize the data to a python dict.
@@ -86,13 +84,17 @@ class PostScraper:
             edges = data["edge_sidecar_to_children"]["edges"]
             # Differentiate between images and videos in multi-content posts.
             # Get urls with .jpg for images and .mp4 for videos.
-            url = [edge["node"]["video_url"] if edge["node"]["__typename"] == "GraphVideo" else edge["node"]["display_url"] for edge in edges]
+            url = [
+                edge["node"]["video_url"]
+                if edge["node"]["__typename"] == "GraphVideo"
+                else edge["node"]["display_url"]
+                for edge in edges
+            ]
 
         return url
 
 
 class Downloader:
-
     def __init__(self, headers, output=None, verbose=False):
         self.headers = headers
         self.output = output
@@ -131,7 +133,7 @@ class Downloader:
         save_file(r.content, self.output, filename)
         # Print information to terminal.
         if self.verbose:
-            file = r.headers['Content-Type']
+            file = r.headers["Content-Type"]
             user = self.scraper.get_username()
             print(f"Download {file} from {user}...")
 
@@ -144,7 +146,7 @@ class Downloader:
         filename = self.scraper.get_username()
         filename += self.scraper.get_created_at()
         # Add file extension based on the contents type.
-        if headers.get('content-type') == "video/mp4":
+        if headers.get("content-type") == "video/mp4":
             filename += ".mp4"
         else:
             filename += ".jpg"

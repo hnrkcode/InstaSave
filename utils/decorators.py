@@ -7,7 +7,9 @@ def start_at_shortcode_media(func):
         data = func(*args, **kwargs)
         # Return data from this position in the dict.
         return data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
+
     return wrapper
+
 
 def unique_filename(func):
     def wrapper(*args, **kwargs):
@@ -22,4 +24,5 @@ def unique_filename(func):
         # Merge the name and the file extension.
         filename = ".".join(filename)
         return filename
+
     return wrapper

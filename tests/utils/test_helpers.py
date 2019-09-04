@@ -8,13 +8,14 @@ from utils.helpers import HTTPHeaders, clean, url_exists
 
 
 class TestHelpers(unittest.TestCase):
-
     def setUp(self):
-        self.useragents = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n" + \
-            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n" + \
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n" + \
-            "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:48.0) Gecko/20100101 Firefox/48.0\n" + \
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0\n"
+        self.useragents = (
+            "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n"
+            + "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n"
+            + "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36\n"
+            + "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:48.0) Gecko/20100101 Firefox/48.0\n"
+            + "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:49.0) Gecko/20100101 Firefox/49.0\n"
+        )
 
         # Strings that should match the regular expression of a IG post url,
         # but a match doesn't mean it's an existing and working url
@@ -44,9 +45,8 @@ class TestHelpers(unittest.TestCase):
 
     def test_random_useragent_return_value(self):
         with patch(
-                "builtins.open",
-                new_callable=mock_open,
-                read_data=self.useragents) as mock_file:
+            "builtins.open", new_callable=mock_open, read_data=self.useragents
+        ) as mock_file:
             # Mock a file to open and return one random line from read_data.
             ua = HTTPHeaders("some/path/some_file.txt")
             # Create a list of user agents in the string passed to read_data.
@@ -63,40 +63,42 @@ class TestHelpers(unittest.TestCase):
     def test_clean_no_match(self):
         for url in self.no_match:
             with self.assertRaisesRegex(
-                    SystemExit, "^Not a link to an Instagram post or user$"):
+                SystemExit, "^Not a link to an Instagram post or user$"
+            ):
                 clean(url)
 
     def test_clean_match_username_without_flag(self):
         for url in ["asdf", "asdfgd", "aaaaa"]:
             with self.assertRaisesRegex(
-                    SystemExit, "^Need to use the -p or --posts flag.$"):
+                SystemExit, "^Need to use the -p or --posts flag.$"
+            ):
                 clean(url)
 
-    @patch.object(requests, 'get', side_effect=MissingSchema)
+    @patch.object(requests, "get", side_effect=MissingSchema)
     def test_url_exists_raises_missing_schema_message(self, mock_requests):
         with self.assertRaisesRegex(SystemExit, "^Invalid URL$"):
             url_exists("URL")
 
-    @patch.object(requests, 'get', side_effect=ConnectionError)
+    @patch.object(requests, "get", side_effect=ConnectionError)
     def test_url_exists_raises_connection_error_message(self, mock_requests):
         with self.assertRaisesRegex(SystemExit, "^Connection error$"):
             url_exists("URL")
 
-    @patch.object(requests, 'get', side_effect=Timeout)
+    @patch.object(requests, "get", side_effect=Timeout)
     def test_url_exists_raises_timeout_message(self, mock_requests):
         with self.assertRaisesRegex(SystemExit, "^Timeout$"):
             url_exists("URL")
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_url_exists_response_ok(self, mock_requests):
         mock_requests.return_value.status_code = requests.codes.ok
         self.assertTrue(url_exists("URL"))
 
-    @patch('requests.get')
+    @patch("requests.get")
     def test_url_exists_response_not_found(self, mock_requests):
         mock_requests.return_value.status_code = requests.codes.not_found
         self.assertFalse(url_exists("URL"))
 
     # TODO: write test for save_file().
-    #def test_save_file(self):
+    # def test_save_file(self):
     #    pass

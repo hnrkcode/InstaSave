@@ -28,9 +28,7 @@ class WebDriver:
 
         try:
             self.driver = webdriver.Firefox(
-                profile,
-                firefox_options=options,
-                executable_path=GECKODRIVER,
+                profile, firefox_options=options, executable_path=GECKODRIVER
             )
         except TypeError as e:
             sys.exit(e)
@@ -82,12 +80,13 @@ class URLScraper(WebDriver):
         """Check if account is public."""
         # Make sure it's not a hashtag page before checking if account status.
         if not hashtag:
-            soup = BeautifulSoup(self.driver.page_source, 'html.parser')
+            soup = BeautifulSoup(self.driver.page_source, "html.parser")
             script = soup.select("body > script:nth-child(6)")
             json_data = script[0].text[21:-1]
             data = json.loads(json_data)
-            private = data[
-                "entry_data"]["ProfilePage"][0]["graphql"]["user"]["is_private"]
+            private = data["entry_data"]["ProfilePage"][0]["graphql"]["user"][
+                "is_private"
+            ]
             if private:
                 return False
 
@@ -100,14 +99,14 @@ class URLScraper(WebDriver):
         scroll_pos = 0
         main = self.driver.find_element_by_class_name(MAIN_CONTENT)
         innerHTML = main.get_attribute("innerHTML")
-        soup = BeautifulSoup(innerHTML, 'html.parser')
+        soup = BeautifulSoup(innerHTML, "html.parser")
         # Get all tags that contains post data.
         posts = soup.find_all(class_=POST)
 
         while len(urls) < max:
             for post in posts[:max]:
                 # Link to the individual post.
-                url = "https://www.instagram.com" + post.parent['href']
+                url = "https://www.instagram.com" + post.parent["href"]
                 # Add it if maximum scraped posts isn't reached yet.
                 if len(urls) < max:
                     urls.add(url)
@@ -115,7 +114,7 @@ class URLScraper(WebDriver):
             # Update HTML code.
             main = self.driver.find_element_by_class_name(MAIN_CONTENT)
             innerHTML = main.get_attribute("innerHTML")
-            soup = BeautifulSoup(innerHTML, 'html.parser')
+            soup = BeautifulSoup(innerHTML, "html.parser")
             posts = soup.find_all(class_=POST)
             # Scroll down to see more posts in the feed.
             self.driver.execute_script(f"window.scrollTo(0, {scroll_pos});")

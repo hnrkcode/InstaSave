@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 
 
 class GeckoLoader:
-
     def __init__(self, headers):
         self._url = "https://github.com/mozilla/geckodriver/releases/latest"
         self._get_geckodriver(self._url, headers)
@@ -25,7 +24,9 @@ class GeckoLoader:
             filename = self._download(drivers, info, headers)
             # Extract the geckodriver.
             self._extract(filename)
-            print(f"Downloaded latest gecodriver version for { info['name'] } { info['bits'] }.")
+            print(
+                f"Downloaded latest gecodriver version for { info['name'] } { info['bits'] }."
+            )
         else:
             print("Geckodriver exists in path.")
 
@@ -40,11 +41,12 @@ class GeckoLoader:
                 url = self._url[:19] + path
                 r = requests.get(url, headers)
                 filename = re.search(
-                    "geckodriver-v[0-9\.-]+[a-z0-9]+\.[a-z\.]+$", path).group()
+                    "geckodriver-v[0-9\.-]+[a-z0-9]+\.[a-z\.]+$", path
+                ).group()
 
         # Save the file if a driver for the current system was found.
         if filename:
-            with open(filename, 'wb') as f:
+            with open(filename, "wb") as f:
                 f.write(r.content)
         else:
             raise SystemExit("Can't find any driver to download for your system.")
@@ -54,18 +56,16 @@ class GeckoLoader:
     def _get_driver_paths(self, url, headers):
         """Return a list of available geckodrivers for different systems."""
         r = requests.get(url, headers)
-        soup = BeautifulSoup(r.text, 'html.parser')
-        paths = soup.find_all("a",
-            href=re.compile("([/][a-z]+)+[0-9\./]+geckodriver-v[a-z0-9\.\-]+"))
+        soup = BeautifulSoup(r.text, "html.parser")
+        paths = soup.find_all(
+            "a", href=re.compile("([/][a-z]+)+[0-9\./]+geckodriver-v[a-z0-9\.\-]+")
+        )
 
         return paths
 
     def _get_system_info(self):
         """Return the running systems name and processor architecture."""
-        info = {
-            "name": platform.system().lower(),
-            "bits": platform.machine()[-2:],
-        }
+        info = {"name": platform.system().lower(), "bits": platform.machine()[-2:]}
 
         return info
 
