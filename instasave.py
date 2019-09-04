@@ -14,6 +14,7 @@ def main():
     parser.add_argument("-o", "--output", help="Custom output path.")
     parser.add_argument("-v", "--verbose", action="store_true", help="Print download information.")
     parser.add_argument("-p", "--posts", type=int)
+    parser.add_argument("-t", "--hashtag", action="store_true", help="Scrape posts under a hashtag.")
     args = parser.parse_args()
 
     # Current HTTP headers with random user agent.
@@ -34,11 +35,16 @@ def main():
 
     # Scrape a given number of post urls from a users feed.
     if args.posts:
-        user = is_user(args.url)
-        if user:
+        input = None
+        if args.hashtag:
+            input = "https://www.instagram.com/explore/tags/" + args.url
+        else:
+            input = is_user(args.url)
+
+        if input:
             webdriver = URLScraper(current.headers["User-Agent"])
-            webdriver.open(user)
-            url_list = webdriver.get_urls(args.posts)
+            webdriver.open(input)
+            url_list = webdriver.scrape(args.posts, args.hashtag)
             webdriver.close()
 
     # Download files and save them to the output directory.

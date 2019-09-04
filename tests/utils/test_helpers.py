@@ -34,8 +34,6 @@ class TestHelpers(unittest.TestCase):
             "https://www.instagram.com/p/B1ZFAo/?utm_source=web",
             "https://www.instagram.com/",
             "https://instagram.com/",
-            "asdf",
-            "1234",
         ]
 
     def test_random_useragent_file_not_found(self):
@@ -65,7 +63,13 @@ class TestHelpers(unittest.TestCase):
     def test_clean_no_match(self):
         for url in self.no_match:
             with self.assertRaisesRegex(
-                    SystemExit, "^Not a link to an Instagram post$"):
+                    SystemExit, "^Not a link to an Instagram post or user$"):
+                clean(url)
+
+    def test_clean_match_username_without_flag(self):
+        for url in ["asdf", "asdfgd", "aaaaa"]:
+            with self.assertRaisesRegex(
+                    SystemExit, "^Need to use the -p or --posts flag.$"):
                 clean(url)
 
     @patch.object(requests, 'get', side_effect=MissingSchema)

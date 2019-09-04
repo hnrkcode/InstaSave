@@ -10,9 +10,3 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 USER_AGENT_FILE = os.path.join(DATA_DIR, "useragents.txt")
 
 GECKODRIVER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "geckodriver")
-
-# Constants for the Scraper class.
-POST = "eLAPa"
-TOTAL_POSTS = "g47SY "
-MAIN_CONTENT = "v9tJq "
-NOT_AVAILABLE = "error-container"

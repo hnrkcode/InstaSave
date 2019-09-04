@@ -1,3 +1,4 @@
+import json
 import os.path
 import random
 import sys
@@ -8,7 +9,10 @@ from selenium.common import exceptions
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.firefox.options import Options
 
-from utils import settings
+from utils.settings import GECKODRIVER
+
+MAIN_CONTENT = "SCxLW"
+POST = "eLAPa"
 
 
 class WebDriver:
@@ -26,7 +30,7 @@ class WebDriver:
             self.driver = webdriver.Firefox(
                 profile,
                 firefox_options=options,
-                executable_path=settings.GECKODRIVER
+                executable_path=GECKODRIVER,
             )
         except TypeError as e:
             sys.exit(e)
@@ -42,7 +46,7 @@ class WebDriver:
 
     def close(self, msg=None):
         """Close the web driver."""
-        self.driver.close()
+        self.driver.quit()
         if msg:
             sys.exit(msg)
 
@@ -53,61 +57,69 @@ class URLScraper(WebDriver):
     def __init__(self, useragent):
         super().__init__(useragent)
 
-    def _is_private(self, main):
-        """Check if the account is private."""
-        try:
-            innerHTML = main.get_attribute("innerHTML")
-            soup = BeautifulSoup(innerHTML, 'html.parser')
-            private = soup.find('h2').string
-        except AttributeError:
-            return main  # The account is public.
-        else:
-            self.close(private)
+    def scrape(self, max, hashtag):
+        """Check page status before scraping urls."""
+        # Hashtag or profle exists.
+        if self._exists():
+            # Hashtag or a public profile.
+            if self._exists() and self._is_public(hashtag):
+                return self._get_urls(max, hashtag)
+            # Private profile.
+            elif self._exists() and not self._is_public():
+                print("Account is private.")
+                return []
+        # Hashtag or profile doesn't exists.
+        print("Doesn't exists.")
+        return []
 
-    def _user_exists(self):
-        """Check if the user exists."""
-        try:
-            main = self._is_private(self.driver.find_element_by_class_name(settings.MAIN_CONTENT))
-        except NoSuchElementException:
-            main = self.driver.find_element_by_class_name(settings.NOT_AVAILABLE)
-            innerHTML = main.get_attribute("innerHTML")
-            soup = BeautifulSoup(innerHTML, 'html.parser')
-            message = soup.find('h2').string
-            self.close(message)
-        else:
-            return main
+    def _exists(self):
+        """Test if profile or hashtag exists."""
+        if "Page Not Found" in self.driver.title:
+            return False
+        return True
 
-    def get_urls(self, max=1):
-        """Collects post urls."""
+    def _is_public(self, hashtag):
+        """Check if account is public."""
+        # Make sure it's not a hashtag page before checking if account status.
+        if not hashtag:
+            soup = BeautifulSoup(self.driver.page_source, 'html.parser')
+            script = soup.select("body > script:nth-child(6)")
+            json_data = script[0].text[21:-1]
+            data = json.loads(json_data)
+            private = data[
+                "entry_data"]["ProfilePage"][0]["graphql"]["user"]["is_private"]
+            if private:
+                return False
 
-        main = self._user_exists()
+        return True
+
+    def _get_urls(self, max, hashtag):
+        """Scrape a certain number of post urls from the page."""
+
+        urls = set()
+        scroll_pos = 0
+        main = self.driver.find_element_by_class_name(MAIN_CONTENT)
         innerHTML = main.get_attribute("innerHTML")
         soup = BeautifulSoup(innerHTML, 'html.parser')
-        posts = soup.find_all(class_=settings.POST)
-        scroll_pos = 0
-        urls = set()
+        # Get all tags that contains post data.
+        posts = soup.find_all(class_=POST)
 
-        # Will only the latest post if not a higher number is specified.
-        if max:
-            total_posts = max
-        # Will scrape every post url posted by the user.
-        if not max:
-            total_posts = int(soup.find_all(class_=settings.TOTAL_POSTS)[0].text)
-
-        # Scroll down.
-        while len(urls) < total_posts:
-            # Limit the number of post urls to get to what 'total_posts' is.
-            for post in posts[:total_posts]:
+        while len(urls) < max:
+            for post in posts[:max]:
+                # Link to the individual post.
                 url = "https://www.instagram.com" + post.parent['href']
-                if len(urls) < total_posts:
+                # Add it if maximum scraped posts isn't reached yet.
+                if len(urls) < max:
                     urls.add(url)
 
-            main = self.driver.find_element_by_class_name(settings.MAIN_CONTENT)
+            # Update HTML code.
+            main = self.driver.find_element_by_class_name(MAIN_CONTENT)
             innerHTML = main.get_attribute("innerHTML")
             soup = BeautifulSoup(innerHTML, 'html.parser')
-            posts = soup.find_all(class_=settings.POST)
+            posts = soup.find_all(class_=POST)
+            # Scroll down to see more posts in the feed.
             self.driver.execute_script(f"window.scrollTo(0, {scroll_pos});")
             scroll_pos += 500
-            print(f"Collecting urls: {len(urls)}/{total_posts}")
+            print(f"Collecting urls: {len(urls)}/{max}")
 
         return list(urls)
