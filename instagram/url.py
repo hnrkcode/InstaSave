@@ -22,14 +22,14 @@ class WebDriver:
     def __init__(self, useragent):
         """Initialize headless mode by default."""
         options = Options()
-        options.add_argument("--headless")
+        options.headless = True
         # Change settings in about:config.
         profile = webdriver.FirefoxProfile()
         profile.set_preference("general.useragent.override", useragent)
 
         try:
             self.driver = webdriver.Firefox(
-                profile, firefox_options=options, executable_path=GECKODRIVER
+                firefox_profile=profile, options=options, executable_path=GECKODRIVER
             )
         except TypeError as e:
             sys.exit(e)
