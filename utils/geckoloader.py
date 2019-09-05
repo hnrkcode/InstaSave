@@ -41,7 +41,7 @@ class GeckoLoader:
                 url = self._url[:19] + path
                 r = requests.get(url, headers)
                 filename = re.search(
-                    "geckodriver-v[0-9\.-]+[a-z0-9]+\.[a-z\.]+$", path
+                    r"geckodriver-v[0-9\.-]+[a-z0-9]+\.[a-z\.]+$", path
                 ).group()
 
         # Save the file if a driver for the current system was found.
@@ -58,7 +58,7 @@ class GeckoLoader:
         r = requests.get(url, headers)
         soup = BeautifulSoup(r.text, "html.parser")
         paths = soup.find_all(
-            "a", href=re.compile("([/][a-z]+)+[0-9\./]+geckodriver-v[a-z0-9\.\-]+")
+            "a", href=re.compile(r"([/][a-z]+)+[0-9\./]+geckodriver-v[a-z0-9\.\-]+")
         )
 
         return paths

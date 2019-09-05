@@ -1,6 +1,12 @@
 # InstaSave
 
-Download images and videos from Instagram.
+> Download images and videos from Instagram.
+
+This Instagram scraper can download any public post on Instagram. If you want to download an individual post just enter it's url.
+
+You can also scrape a public users feed or public posts with a certain hashtag. The scraper ignores posts it has already saved. So if you want to download a users whole feed, you can download the latest 15 posts at one time and continue at the 16th the next time.
+
+All downloaded files are saved in folders named after the uploaders.
 
 ## Usage
 

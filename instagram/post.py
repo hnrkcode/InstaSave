@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from utils.decorators import start_at_shortcode_media, unique_filename
-from utils.helpers import save_file
+from utils.path import save_file
 
 
 class PostScraper:
@@ -38,12 +38,16 @@ class PostScraper:
 
         return username
 
+    def get_shortcode(self):
+        """Return the posts URL shortcode."""
+        return self.data["shortcode"]
+
     def get_created_at(self):
         """Return post creation date and time."""
         try:
             t = self.data["taken_at_timestamp"]
             # Convert unix timestamp to custom date format.
-            date = datetime.utcfromtimestamp(t).strftime("_%Y%m%d%H%M%S")
+            date = datetime.utcfromtimestamp(t).strftime("%Y%m%d%H%M%S")
         except KeyError as e:
             raise SystemExit(f"KeyError: {e}")
 
@@ -139,12 +143,13 @@ class Downloader:
 
     @unique_filename
     def _pick_filename(self, headers):
-        """Create a filename based username, date and file type.
+        """Create a filename based username, date, url and file type.
 
-            Example: [username]_[post date].[file extension]"""
+            Example: [username]_[post date]_[shortcode].[file extension]"""
 
         filename = self.scraper.get_username()
-        filename += self.scraper.get_created_at()
+        filename += "_" + self.scraper.get_created_at()
+        filename += "_" + self.scraper.get_shortcode()
         # Add file extension based on the contents type.
         if headers.get("content-type") == "video/mp4":
             filename += ".mp4"
