@@ -112,7 +112,7 @@ class URLScraper(WebDriver):
                 limit = self._check_limit(limit, hashtag)
                 return self._get_urls(limit)
             # Private profile.
-            elif self._exists() and not self._is_public():
+        elif self._exists() and not self._is_public():
                 print("Account is private.")
                 return []
         # Hashtag or profile doesn't exists.
@@ -125,7 +125,7 @@ class URLScraper(WebDriver):
             return False
         return True
 
-    def _is_public(self, hashtag):
+    def _is_public(self, hashtag=False):
         """Return true if account is public."""
         # Make sure it's not a hashtag page before checking if account status.
         if not hashtag:
