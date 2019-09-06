@@ -109,7 +109,8 @@ class URLScraper(WebDriver):
         if self._exists():
             # Hashtag or a public profile.
             if self._exists() and self._is_public(hashtag):
-                return self._get_urls(limit, hashtag)
+                limit = self._check_limit(limit, hashtag)
+                return self._get_urls(limit)
             # Private profile.
             elif self._exists() and not self._is_public():
                 print("Account is private.")
@@ -139,6 +140,27 @@ class URLScraper(WebDriver):
                 return False
 
         return True
+
+    def _check_limit(self, limit, hashtag):
+        """Return limit that is less than or equal to existing posts."""
+        soup = BeautifulSoup(self.driver.page_source, "html.parser")
+        script = soup.select("body > script:nth-child(6)")
+        json_data = script[0].text[21:-1]
+        data = json.loads(json_data)
+
+        if hashtag:
+            total_posts = data["entry_data"]["TagPage"][0]["graphql"]["hashtag"][
+                "edge_hashtag_to_media"
+            ]["count"]
+        else:
+            total_posts = data["entry_data"]["ProfilePage"][0]["graphql"]["user"][
+                "edge_owner_to_timeline_media"
+            ]["count"]
+
+        if limit > total_posts:
+            return total_posts
+
+        return limit
 
     def _get_urls(self, limit):
         """Return list with post urls to download files from."""
