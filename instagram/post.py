@@ -11,10 +11,20 @@ from utils.path import save_file
 
 
 class PostScraper:
+    """Scrape data from posts including image and video files urls.
+
+    Attributes:
+        headers (dict): HTTP headers.
+        data (dict): JSON data from Instagram's HTML code.
+        verbose (bool): Display more information if set to true.
+
+    """
+
     def __init__(self, headers, verbose=False):
+        """Prepare scraping post data by initializing attributes."""
         self.headers = headers
-        self.data = None
         self.verbose = verbose
+        self.data = None
 
     def post_data(self, url):
         """Extract type and file URLs from dict and retrun it."""
@@ -30,7 +40,7 @@ class PostScraper:
         return (url, type)
 
     def get_username(self):
-        """Return post creators username."""
+        """Return uploader's username."""
         try:
             username = self.data["owner"]["username"]
         except KeyError as e:
@@ -39,11 +49,11 @@ class PostScraper:
         return username
 
     def get_shortcode(self):
-        """Return the posts URL shortcode."""
+        """Return post's shortcode."""
         return self.data["shortcode"]
 
     def get_created_at(self):
-        """Return post creation date and time."""
+        """Return post's creation timestamp."""
         try:
             t = self.data["taken_at_timestamp"]
             # Convert unix timestamp to custom date format.
@@ -71,12 +81,12 @@ class PostScraper:
         return data
 
     def _get_type(self, data):
-        """Get the type of Instagram post."""
+        """Return post type."""
         # Return the type of the post.
         return data["__typename"]
 
     def _get_url(self, data, type):
-        """Get the urls to the files in a Instagram post."""
+        """Return file urls from post."""
         # Post with a video file.
         if type == "GraphVideo":
             url = data["video_url"]
@@ -99,14 +109,26 @@ class PostScraper:
 
 
 class Downloader:
+    """Download files from Instagram posts.
+
+    Attributes:
+        scraper (obj): PostScraper object.
+        headers (dict): HTTP headers.
+        output (str): Download location.
+        verbose (bool): Display more information if set to true.
+
+    """
+
     def __init__(self, headers, output=None, verbose=False):
+        """Initialize Downloader."""
+        self.scraper = PostScraper(headers, verbose=verbose)
         self.headers = headers
         self.output = output
-        self.scraper = PostScraper(headers, verbose=verbose)
         self.verbose = verbose
 
     @property
     def output(self):
+        """Return default or custom download location."""
         return self.__output
 
     @output.setter

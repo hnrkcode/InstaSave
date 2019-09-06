@@ -8,12 +8,20 @@ from bs4 import BeautifulSoup
 
 
 class GeckoLoader:
+    """Download latest geckodriver from github."""
+
     def __init__(self, headers):
+        """Takes HTTP headers as argument and downloads the geckodriver."""
         self._url = "https://github.com/mozilla/geckodriver/releases/latest"
         self._get_geckodriver(self._url, headers)
 
     def _get_geckodriver(self, url, headers):
-        """Download and extract the latest gecodriver if not already exists."""
+        """Download and extract the latest gecodriver if not already exists.
+
+        Args:
+            url (str): URL to latest geckodriver release.
+            headers (dict): HTTP headers.
+        """
         # Download geckodriver it doesn't already exists in path.
         if not os.path.isfile("geckodriver"):
             # Get list of download links for geckodrivers of different system.
@@ -31,7 +39,22 @@ class GeckoLoader:
             print("Geckodriver exists in path.")
 
     def _download(self, drivers, system, headers):
-        """Download archive file with the geckodriver and return it's name."""
+        """Download archive file with the geckodriver and return it's name.
+
+        Args:
+            drivers (bs4.element.ResultSet): List of available geckodrivers for
+                different systems.
+            system (dict): Contains the systems name (e.g linux) and the
+                processors architecture (e.g 32-bit or 64-bit).
+            headers (dict): HTTP headers.
+
+        Returns:
+            str: Archives filename.
+
+        Raises:
+            SystemExit: If it couldn't find any driver for the system.
+
+        """
         filename = None
         # Check if any of the available drivers ar compatible with the system.
         for driver in drivers:
@@ -54,7 +77,16 @@ class GeckoLoader:
         return filename
 
     def _get_driver_paths(self, url, headers):
-        """Return a list of available geckodrivers for different systems."""
+        """Return list of available geckodrivers.
+
+        Args:
+            url (str): URL to latest release.
+            headers (dict): HTTP headers.
+
+        Returns:
+            bs4.element.ResultSet: List of available drivers.
+
+        """
         r = requests.get(url, headers)
         soup = BeautifulSoup(r.text, "html.parser")
         paths = soup.find_all(
@@ -64,13 +96,15 @@ class GeckoLoader:
         return paths
 
     def _get_system_info(self):
-        """Return the running systems name and processor architecture."""
+        """Return dict with system name and processor architecture."""
+
         info = {"name": platform.system().lower(), "bits": platform.machine()[-2:]}
 
         return info
 
     def _extract(self, file):
-        """Extract the geckodriver and delete the archive file afterwards."""
+        """Extract driver and delete it's archive file afterwards."""
+
         try:
             # Extract the geckodriver.
             tar = tarfile.open(file)

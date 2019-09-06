@@ -4,11 +4,29 @@ from utils.settings import USER_AGENT_FILE
 
 
 class HTTPHeaders:
+    """Create HTTP headers with a random user agent string.
+
+    Attributes:
+        headers (dict): Common HTTP headers with a random user agent.
+
+    """
+
     def __init__(self):
+        """Initialise `headers` with a file of many different user agents.
+
+        Args:
+            headers (dict): HTTP headers.
+
+        """
         self.headers = USER_AGENT_FILE
 
     @property
     def headers(self):
+        """dict: Get HTTP headers.
+
+        To generate new HTTP headers with a different user agent string
+        reassign the file with the list of user agents.
+        """
         return self.__headers
 
     @headers.setter
@@ -22,7 +40,18 @@ class HTTPHeaders:
         }
 
     def random_useragent(self, filename):
-        """Read in all possible user agents from a file and pick one."""
+        """Return random user agent listed inside a file.
+
+        Args:
+            filename (str): Path to a file with user agents.
+
+        Returns:
+            str: Random user agent.
+
+        Raises:
+            FileNotFoundError: No ``useragents.txt`` wasn't found in ``data``
+            folder.
+        """
 
         try:
             with open(filename, "r") as f:

@@ -13,14 +13,31 @@ from selenium.webdriver.firefox.options import Options
 from utils.settings import GECKODRIVER
 
 MAIN_CONTENT = "SCxLW"
+
 POST = "eLAPa"
 
 
 class WebDriver:
-    """Responsible for starting and closing Selenium."""
+    """Responsible for starting and closing Selenium.
+
+    Attributes:
+        driver (obj): Selenium webdriver.
+    """
 
     def __init__(self, useragent):
-        """Initialize headless mode by default."""
+        """Initialize the webdriver.
+
+        Set the webdriver to headless (i.e., hide browser GUI). Also modify the
+        Firefox profile's preferences.
+
+        Args:
+            useragent (str): Overrides the default user agent.
+
+        Raises:
+            TypeError
+            exceptions.WebDriverException
+
+        """
         options = Options()
         options.headless = True
         # Change settings in about:config.
@@ -31,35 +48,64 @@ class WebDriver:
             self.driver = webdriver.Firefox(
                 firefox_profile=profile, options=options, executable_path=GECKODRIVER
             )
-        except TypeError as e:
-            sys.exit(e)
-        except exceptions.WebDriverException as e:
-            sys.exit(e)
+        except (TypeError, exceptions.WebDriverException) as e:
+            raise SystemExit(e)
 
     def open(self, url):
-        """Open the url in the webdriver."""
+        """Start webdriver and visit url.
+
+        Args:
+            url (str): Page to visit.
+
+        Raises:
+            exceptions.WebDriverException: Shut down and print error message.
+
+        """
         try:
             self.driver.get(url)
         except exceptions.WebDriverException as e:
             self.close(e)
 
     def close(self, msg=None):
-        """Close the web driver."""
+        """Close webdriver."""
         self.driver.quit()
         if msg:
-            sys.exit(msg)
+            raise SystemExit(msg)
 
 
 class URLScraper(WebDriver):
-    """Collect urls to posts that should be downloaded."""
+    """Collect post urls to download.
+
+    Inherit from WebDriver.
+
+    Attributes:
+        filelist (list): List with shortcodes that belongs to already
+            downloaded posts.
+
+    """
 
     def __init__(self, useragent, output):
+        """Inherit from WebDriver and initialize list of downloaded posts.
+
+        Args:
+            useragent (str): Used for __init__ in WebDriver.
+            output (str): Scan downloaded files and get their shortcodes.
+        """
         super().__init__(useragent)
         self.filelist = [str(file)[-36:-25] for file in Path(output).rglob("*.*")]
 
     def scrape(self, limit, hashtag):
-        """Check page status before scraping urls."""
-        # Hashtag or profle exists.
+        """Scrape post urls if user or hashtag page exists.
+
+        Args:
+            limit (int): Stop scraping post urls when limit is reached.
+            hashtag (bool): Tell if page belongs to hashtag or user.
+
+        Returns:
+            List with urls to posts that hasn't been downloaded yet. If the
+            list is empty, the page is private or doesn't exist.
+
+        """
         if self._exists():
             # Hashtag or a public profile.
             if self._exists() and self._is_public(hashtag):
@@ -73,13 +119,13 @@ class URLScraper(WebDriver):
         return []
 
     def _exists(self):
-        """Test if profile or hashtag exists."""
+        """Return true if user or hashtag exists."""
         if "Page Not Found" in self.driver.title:
             return False
         return True
 
     def _is_public(self, hashtag):
-        """Check if account is public."""
+        """Return true if account is public."""
         # Make sure it's not a hashtag page before checking if account status.
         if not hashtag:
             soup = BeautifulSoup(self.driver.page_source, "html.parser")
@@ -94,7 +140,8 @@ class URLScraper(WebDriver):
 
         return True
 
-    def _get_urls(self, limit, hashtag):
+    def _get_urls(self, limit):
+        """Return list with post urls to download files from."""
         urls = set()
         scroll_pos = 0
         main = self.driver.find_element_by_class_name(MAIN_CONTENT)

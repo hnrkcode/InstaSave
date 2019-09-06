@@ -5,7 +5,18 @@ from PIL import Image
 
 
 def save_file(buffer, output, filename):
-    """Write content to file."""
+    """Write content to file.
+
+    Saves every file in a folder named after the uploaders in the output
+    folder. Tries to remove any unvanted meta data from jpeg files
+    and still keep the original quality. Mp4 files are unmodified.
+
+    Args:
+        buffer (bytes): File content in byte code.
+        output (str): Where to save the file.
+        filename (str): Name of the file.
+    """
+
     # Output path should be ~/[output]/[username]
     user_output = os.path.join(output, filename[:-52])
     # Create folder for downloaded files if it not exist.
