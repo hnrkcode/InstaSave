@@ -6,12 +6,16 @@ import tarfile
 import requests
 from bs4 import BeautifulSoup
 
+from utils.color import TextColors
+
 
 class GeckoLoader:
     """Download latest geckodriver from github."""
 
-    def __init__(self, headers):
+    def __init__(self, headers, verbose=False):
         """Takes HTTP headers as argument and downloads the geckodriver."""
+        self.verbose = verbose
+        self.text = TextColors()
         self._url = "https://github.com/mozilla/geckodriver/releases/latest"
         self._get_geckodriver(self._url, headers)
 
@@ -32,11 +36,14 @@ class GeckoLoader:
             filename = self._download(drivers, info, headers)
             # Extract the geckodriver.
             self._extract(filename)
-            print(
-                f"Downloaded latest gecodriver version for { info['name'] } { info['bits'] }."
-            )
-        else:
-            print("Geckodriver exists in path.")
+
+            if self.verbose:
+                msg = self.text.bold(
+                    f"Downloaded latest geckodriver version for { info['name'] } { info['bits'] }."
+                )
+                print(msg)
+        elif self.verbose:
+            print(self.text.bold("Geckodriver exists in path."))
 
     def _download(self, drivers, system, headers):
         """Download archive file with the geckodriver and return it's name.
@@ -59,6 +66,8 @@ class GeckoLoader:
         # Check if any of the available drivers ar compatible with the system.
         for driver in drivers:
             path = driver.get("href")
+            if self.verbose:
+                print(f"Check { self.text.bold(path.split('/')[-1]) }...")
             # Compatible driver found.
             if system["name"] in path and system["bits"] in path:
                 url = self._url[:19] + path
@@ -66,6 +75,12 @@ class GeckoLoader:
                 filename = re.search(
                     r"geckodriver-v[0-9\.-]+[a-z0-9]+\.[a-z\.]+$", path
                 ).group()
+                if self.verbose:
+                    print(self.text.green("Compatible!"))
+                break
+            else:
+                if self.verbose:
+                    print(self.text.fail("Not compatible."))
 
         # Save the file if a driver for the current system was found.
         if filename:

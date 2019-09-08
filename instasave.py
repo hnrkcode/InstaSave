@@ -58,7 +58,7 @@ def main():
     # Current HTTP headers with random user agent.
     current = HTTPHeaders()
     # Get latest geckdriver for the system if isn't already in path.
-    GeckoLoader(current.headers)
+    GeckoLoader(current.headers, args.verbose)
     # List of urls to posts that will be downloaded.
     url_list = [args.url]
     # Set custom download directory otherwise use current working directory.

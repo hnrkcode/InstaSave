@@ -113,8 +113,8 @@ class URLScraper(WebDriver):
                 return self._get_urls(limit)
             # Private profile.
         elif self._exists() and not self._is_public():
-                print("Account is private.")
-                return []
+            print("Account is private.")
+            return []
         # Hashtag or profile doesn't exists.
         print("Doesn't exists.")
         return []

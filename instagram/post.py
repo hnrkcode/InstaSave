@@ -6,7 +6,8 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
-from utils.decorators import start_at_shortcode_media, unique_filename
+from utils.color import TextColors
+from utils.decorators import count_calls, start_at_shortcode_media, unique_filename
 from utils.path import save_file
 
 
@@ -20,48 +21,35 @@ class PostScraper:
 
     """
 
-    def __init__(self, headers, verbose=False):
+    def __init__(self, headers):
         """Prepare scraping post data by initializing attributes."""
         self.headers = headers
-        self.verbose = verbose
         self.data = None
+
+    @property
+    def username(self):
+        return self.data["owner"]["username"]
+
+    @property
+    def shortcode(self):
+        return self.data["shortcode"]
+
+    @property
+    def created_at(self):
+        t = self.data["taken_at_timestamp"]
+        # Convert unix timestamp to custom date format.
+        date = datetime.utcfromtimestamp(t).strftime("%Y%m%d%H%M%S")
+        return date
 
     def post_data(self, url):
         """Extract type and file URLs from dict and retrun it."""
         # Dict with data extracted from the HTML of the url parameter.
         self.data = self._json_data(url)
-        # Print information to terminal.
-        if self.verbose:
-            print(f"Scrape data from one of { self.get_username() }'s posts...")
 
         type = self._get_type(self.data)
         url = self._get_url(self.data, type)
 
         return (url, type)
-
-    def get_username(self):
-        """Return uploader's username."""
-        try:
-            username = self.data["owner"]["username"]
-        except KeyError as e:
-            raise SystemExit(f"KeyError: {e}")
-
-        return username
-
-    def get_shortcode(self):
-        """Return post's shortcode."""
-        return self.data["shortcode"]
-
-    def get_created_at(self):
-        """Return post's creation timestamp."""
-        try:
-            t = self.data["taken_at_timestamp"]
-            # Convert unix timestamp to custom date format.
-            date = datetime.utcfromtimestamp(t).strftime("%Y%m%d%H%M%S")
-        except KeyError as e:
-            raise SystemExit(f"KeyError: {e}")
-
-        return date
 
     @start_at_shortcode_media
     def _json_data(self, url):
@@ -121,10 +109,11 @@ class Downloader:
 
     def __init__(self, headers, output=None, verbose=False):
         """Initialize Downloader."""
-        self.scraper = PostScraper(headers, verbose=verbose)
+        self.scraper = PostScraper(headers)
         self.headers = headers
         self.output = output
         self.verbose = verbose
+        self.text = TextColors()
 
     @property
     def output(self):
@@ -140,6 +129,7 @@ class Downloader:
         else:
             self.__output = os.path.join(os.getcwd(), "downloads")
 
+    @count_calls
     def download(self, url):
         """Download files to disk."""
 
@@ -157,11 +147,11 @@ class Downloader:
         r = requests.get(url, headers=self.headers)
         filename = self._pick_filename(r.headers)
         save_file(r.content, self.output, filename)
-        # Print information to terminal.
+
         if self.verbose:
-            file = r.headers["Content-Type"]
-            user = self.scraper.get_username()
-            print(f"Download {file} from {user}...")
+            file = self.text.blue(r.headers["Content-Type"])
+            user = self.text.green(self.scraper.username)
+            print(f"Download { file } from { user }...")
 
     @unique_filename
     def _pick_filename(self, headers):
@@ -169,9 +159,9 @@ class Downloader:
 
             Example: [username]_[post date]_[shortcode].[file extension]"""
 
-        filename = self.scraper.get_username()
-        filename += "_" + self.scraper.get_created_at()
-        filename += "_" + self.scraper.get_shortcode()
+        filename = self.scraper.username
+        filename += "_" + self.scraper.created_at
+        filename += "_" + self.scraper.shortcode
         # Add file extension based on the contents type.
         if headers.get("content-type") == "video/mp4":
             filename += ".mp4"
