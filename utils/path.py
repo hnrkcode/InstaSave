@@ -4,6 +4,7 @@ import os
 from PIL import Image
 
 
+# def save_file(buffer, output, filename, date, shortcode):
 def save_file(buffer, output, filename):
     """Write content to file.
 
@@ -15,18 +16,17 @@ def save_file(buffer, output, filename):
         buffer (bytes): File content in byte code.
         output (str): Where to save the file.
         filename (str): Name of the file.
+        shortcode (str): Save post in folder named after the post's shortcode.
     """
 
-    # Output path should be ~/[output]/[username]
-    user_output = os.path.join(output, filename[:-52])
     # Create folder for downloaded files if it not exist.
-    if not os.path.isdir(user_output):
-        os.makedirs(user_output)
+    if not os.path.isdir(output):
+        os.makedirs(output)
     # JPEG file signature always start with FF D8.
     # The other two bytes are FF Ex (x = 0-F).
     if buffer[:3] == b"\xff\xd8\xff" and (buffer[3] & 0xE0) == 0xE0:
         bytes = io.BytesIO(buffer)
-        op = os.path.join(user_output, filename)
+        op = os.path.join(output, filename)
         # Save the image with Pillow to remove any unwanted meta data.
         # Also try to keep the same quality when saved.
         Image.open(bytes).save(op, quality="keep")
@@ -37,5 +37,5 @@ def save_file(buffer, output, filename):
         and buffer[8:12] == b"\x69\x73\x6f\x6d"
         or buffer[8:12] == b"\x4d\x53\x4e\x56"
     ):
-        with open(os.path.join(user_output, filename), "wb") as f:
+        with open(os.path.join(output, filename), "wb") as f:
             f.write(buffer)

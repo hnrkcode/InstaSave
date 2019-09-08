@@ -5,6 +5,7 @@ from hashlib import blake2b
 
 def start_at_shortcode_media(func):
     """Return dict with direct access to the shortcode_media key."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         data = func(*args, **kwargs)
@@ -16,6 +17,7 @@ def start_at_shortcode_media(func):
 
 def unique_filename(func):
     """Return filename with an unique id appended to it's end."""
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         filename = func(*args, **kwargs)
@@ -36,6 +38,7 @@ def unique_filename(func):
 
 def count_calls(func):
     """Count function calls."""
+
     @functools.wraps(func)
     def wrapper_count_calls(*args, **kwargs):
         wrapper_count_calls.num_calls += 1

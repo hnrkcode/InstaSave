@@ -6,8 +6,8 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
+from utils import decorator
 from utils.color import TextColors
-from utils.decorators import count_calls, start_at_shortcode_media, unique_filename
 from utils.path import save_file
 
 
@@ -51,7 +51,7 @@ class PostScraper:
 
         return (url, type)
 
-    @start_at_shortcode_media
+    @decorator.start_at_shortcode_media
     def _json_data(self, url):
         """Get JSON from javascript and deserialize it into a Python dict."""
 
@@ -129,7 +129,7 @@ class Downloader:
         else:
             self.__output = os.path.join(os.getcwd(), "downloads")
 
-    @count_calls
+    @decorator.count_calls
     def download(self, url):
         """Download files to disk."""
 
@@ -146,14 +146,20 @@ class Downloader:
 
         r = requests.get(url, headers=self.headers)
         filename = self._pick_filename(r.headers)
-        save_file(r.content, self.output, filename)
+        # Change date format from 'yyyymmddhhmmss' to 'yyyy-mm-dd' for folders.
+        d = self.scraper.created_at[:8]
+        date = "-".join([d[:4], d[4:6], d[6:8]])
+        output = os.path.join(
+            self.output, self.scraper.username, date, self.scraper.shortcode
+        )
+        save_file(r.content, output, filename)
 
         if self.verbose:
             file = self.text.blue(r.headers["Content-Type"])
             user = self.text.green(self.scraper.username)
             print(f"Download { file } from { user }...")
 
-    @unique_filename
+    @decorator.unique_filename
     def _pick_filename(self, headers):
         """Create a filename based username, date, url and file type.
 
