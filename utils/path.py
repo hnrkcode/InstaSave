@@ -16,7 +16,6 @@ def save_file(buffer, output, filename):
         buffer (bytes): File content in byte code.
         output (str): Where to save the file.
         filename (str): Name of the file.
-        shortcode (str): Save post in folder named after the post's shortcode.
     """
 
     # Create folder for downloaded files if it not exist.
