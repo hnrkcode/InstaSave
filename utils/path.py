@@ -1,10 +1,35 @@
 import io
 import os
+import csv
 
 from PIL import Image
 
+def _check_path(output):
+    """Create folder for downloaded files if it not exist."""
+    if not os.path.isdir(output):
+        os.makedirs(output)
 
-# def save_file(buffer, output, filename, date, shortcode):
+def save_meta(data, output):
+    """Save post metadata in a csv file."""
+
+    _check_path(output)
+    # Path to the output file.
+    metadata = os.path.join(output, "metadata.csv")
+    # Inner function that writes data to csv.
+    def dump(data, path=""):
+        for i in data.keys():
+            key, value = i, data[i]
+            if isinstance(value, dict):
+                dump(value, path + f"[{key}]")
+            elif isinstance(value, list):
+                for li in value:
+                    dump(li, path + f"[{key}]")
+            else:
+                with open(metadata, mode='a') as f:
+                    dumpe_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                    dumpe_writer.writerow([path + f"[{key}]", value])
+    dump(data)
+
 def save_file(buffer, output, filename):
     """Write content to file.
 
@@ -18,9 +43,7 @@ def save_file(buffer, output, filename):
         filename (str): Name of the file.
     """
 
-    # Create folder for downloaded files if it not exist.
-    if not os.path.isdir(output):
-        os.makedirs(output)
+    _check_path(output)
     # JPEG file signature always start with FF D8.
     # The other two bytes are FF Ex (x = 0-F).
     if buffer[:3] == b"\xff\xd8\xff" and (buffer[3] & 0xE0) == 0xE0:

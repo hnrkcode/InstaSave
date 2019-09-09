@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 from utils import decorator
 from utils.color import TextColors
-from utils.path import save_file
+from utils.path import save_file, save_meta
 
 
 class PostScraper:
@@ -153,6 +153,7 @@ class Downloader:
             self.output, self.scraper.username, date, self.scraper.shortcode
         )
         save_file(r.content, output, filename)
+        save_meta(self.scraper.data, output)
 
         if self.verbose:
             file = self.text.blue(r.headers["Content-Type"])
