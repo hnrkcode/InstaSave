@@ -3,22 +3,20 @@ import re
 import requests
 
 
+def validate_url(url):
+    """Validate that the url is working and belongs to a post."""
+
+    url = clean_url(url)
+
+    if not is_working(url):
+        raise SystemExit("Sorry, this page isn't available.")
+
+    return url
+
+
 def clean_url(url):
-    """Return clean post URL.
+    """Return clean post URL without UTM code at the end."""
 
-    Removes UTM code after a URL that belongs to an Instagram post. Otherwise,
-    an error will be raised.
-
-    Args:
-        url (str): URL string, should lead to a public instagram post.
-
-    Returns:
-        str: Post url without tracking code at the end.
-
-    Raises:
-        SystemExit: If URL didn't match the pattern of a post URL.
-
-    """
     # Pattern that match a link to an Instagram post.
     match = re.match("^http[s]?://www.instagram.com/p/[a-zA-Z0-9_-]{11}", url)
     # Shut down the program if the URL didn't match the pattern.
@@ -31,26 +29,19 @@ def clean_url(url):
 
 
 def get_url(id, hashtag):
-    """Return URL to a hashtag or a user.
+    """Return URL to a hashtag or a user."""
 
-    Args:
-        id (str): Username or hashtag name.
-        hashtag (bool): Is hashtag if True, otherwise it's a username.
-
-    Returns:
-        str: URL if it's a hashtag or a username.
-
-    Raises:
-        SystemExit: If the result wasn't a username or a hashtag.
-
-    """
     if hashtag:
         # Pattern for hashtags.
-        url = re.match("^http[s]?://www.instagram.com/explore/tags/[a-zA-Z0-9_]+", id)
+        url = re.match(
+            "^http[s]?://www.instagram.com/explore/tags/[a-zA-Z0-9_]+", id
+        )
         name = re.match("^[a-zA-Z0-9_]+", id)
     else:
         # Patterns for usernames.
-        url = re.match(r"^http[s]?://www.instagram.com/[a-zA-Z0-9_\.]{2,30}[/]?$", id)
+        url = re.match(
+            r"^http[s]?://www.instagram.com/[a-zA-Z0-9_\.]{2,30}[/]?$", id
+        )
         name = re.match(r"^[a-zA-Z0-9_\.]{2,30}$", id)
 
     # Return full username or hashtag url.
@@ -62,28 +53,14 @@ def get_url(id, hashtag):
         return "https://www.instagram.com/" + name.group()
     # Shut down program if some unexpected error occurres.
     else:
-        raise SystemExit("Some error occurred, couldn't match username or hashtag.")
+        raise SystemExit(
+            "Some error occurred, couldn't match username or hashtag."
+        )
 
 
 def is_working(url):
-    """Check if URL is working.
+    """Check if URL is working."""
 
-    If the request didn't return OK, it probably returned NOT FOUND. That could
-    indicate that the link has been removed, belongs to a private account or
-    never existed.
-
-    Args:
-        url (str): URL to test.
-
-    Returns:
-        bool: True if response is OK (200), False in all other cases.
-
-    Raises:
-        requests.exceptions.MissingSchema: Not a URL.
-        requests.exceptions.ConnectionError: Connection problem.
-        requests.exceptions.Timeout: Took too long to get a response.
-
-    """
     try:
         r = requests.get(url)
     except requests.exceptions.MissingSchema:

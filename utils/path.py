@@ -4,10 +4,12 @@ import csv
 
 from PIL import Image
 
+
 def _check_path(output):
     """Create folder for downloaded files if it not exist."""
     if not os.path.isdir(output):
         os.makedirs(output)
+
 
 def save_meta(data, output):
     """Save post metadata in a csv file."""
@@ -25,10 +27,14 @@ def save_meta(data, output):
                 for li in value:
                     dump(li, path + f"[{key}]")
             else:
-                with open(metadata, mode='a') as f:
-                    dumpe_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                with open(metadata, mode="a") as f:
+                    dumpe_writer = csv.writer(
+                        f, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+                    )
                     dumpe_writer.writerow([path + f"[{key}]", value])
+
     dump(data)
+
 
 def save_file(buffer, output, filename):
     """Write content to file.
