@@ -46,7 +46,9 @@ class WebDriver:
 
         try:
             self.driver = webdriver.Firefox(
-                firefox_profile=profile, options=options, executable_path=GECKODRIVER
+                firefox_profile=profile,
+                options=options,
+                executable_path=GECKODRIVER,
             )
         except (TypeError, exceptions.WebDriverException) as e:
             raise SystemExit(e)
@@ -92,7 +94,9 @@ class URLScraper(WebDriver):
             output (str): Scan downloaded files and get their shortcodes.
         """
         super().__init__(useragent)
-        self.filelist = [str(file)[-36:-25] for file in Path(output).rglob("*.*")]
+        self.filelist = [
+            str(file)[-36:-25] for file in Path(output).rglob("*.*")
+        ]
 
     def scrape(self, limit, hashtag):
         """Scrape post urls if user or hashtag page exists.
@@ -149,13 +153,13 @@ class URLScraper(WebDriver):
         data = json.loads(json_data)
 
         if hashtag:
-            total_posts = data["entry_data"]["TagPage"][0]["graphql"]["hashtag"][
-                "edge_hashtag_to_media"
-            ]["count"]
+            total_posts = data["entry_data"]["TagPage"][0]["graphql"][
+                "hashtag"
+            ]["edge_hashtag_to_media"]["count"]
         else:
-            total_posts = data["entry_data"]["ProfilePage"][0]["graphql"]["user"][
-                "edge_owner_to_timeline_media"
-            ]["count"]
+            total_posts = data["entry_data"]["ProfilePage"][0]["graphql"][
+                "user"
+            ]["edge_owner_to_timeline_media"]["count"]
 
         if limit > total_posts:
             return total_posts
