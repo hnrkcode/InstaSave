@@ -3,18 +3,6 @@ import uuid
 from hashlib import blake2b
 
 
-def start_at_shortcode_media(func):
-    """Return dict with direct access to the shortcode_media key."""
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        data = func(*args, **kwargs)
-        # Return data from this position in the dict.
-        return data["entry_data"]["PostPage"][0]["graphql"]["shortcode_media"]
-
-    return wrapper
-
-
 def unique_filename(func):
     """Return filename with an unique id appended to it's end."""
 
@@ -42,7 +30,10 @@ def count_calls(func):
     @functools.wraps(func)
     def wrapper_count_calls(*args, **kwargs):
         wrapper_count_calls.num_calls += 1
-        print(f"Post {wrapper_count_calls.num_calls}")
+        if args[0].verbose:
+            print(f"Post {wrapper_count_calls.num_calls}")
+        else:
+            print(".", end="", flush=True)
         return func(*args, **kwargs)
 
     wrapper_count_calls.num_calls = 0

@@ -6,9 +6,12 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
-from utils import decorator
+from utils import decorator, hook
 from utils.color import TextColors
+from utils.jsonparser import parse_json
 from utils.path import save_file, save_meta
+
+JSON_CSS_SELECTOR = "body > script:nth-child(6)"
 
 
 class PostScraper:
@@ -42,31 +45,12 @@ class PostScraper:
         return date
 
     def post_data(self, url):
-        """Extract type and file URLs from dict and retrun it."""
-        # Dict with data extracted from the HTML of the url parameter.
-        self.data = self._json_data(url)
-
+        source = requests.get(url, headers=self.headers).text
+        self.data = parse_json(source, JSON_CSS_SELECTOR, hook.shortcode_media)
         type = self._get_type(self.data)
         url = self._get_url(self.data, type)
 
         return (url, type)
-
-    @decorator.start_at_shortcode_media
-    def _json_data(self, url):
-        """Get JSON from javascript and deserialize it into a Python dict."""
-
-        # Get the page's HTML code and parse it with BeautifulSoup
-        # to find the type of the post.
-        r = requests.get(url, headers=self.headers).text
-        soup = BeautifulSoup(r, "html.parser")
-        # Get all scripts in the HTML.
-        script = soup.select('script[type="text/javascript"]')
-        # Pick the fourth script and remove variable name and semicolon.
-        json_data = script[3].text[21:-1]
-        # Deserialize the data to a python dict.
-        data = json.loads(json_data)
-
-        return data
 
     def _get_type(self, data):
         """Return post type."""

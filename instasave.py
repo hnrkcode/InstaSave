@@ -107,6 +107,9 @@ def main():
         post = validate_url(url)
         file.download(post)
 
+    if not is_verbose:
+        print()
+
 
 if __name__ == "__main__":
     main()

@@ -10,35 +10,25 @@ from selenium.common import exceptions
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.firefox.options import Options
 
+from utils import hook
+from utils.jsonparser import parse_json
 from utils.settings import GECKODRIVER
 
 MAIN_CONTENT = "SCxLW"
 
 POST = "eLAPa"
 
+JSON_CSS_SELECTOR = "body > script:nth-child(6)"
+
 
 class WebDriver:
-    """Responsible for starting and closing Selenium.
-
-    Attributes:
-        driver (obj): Selenium webdriver.
-    """
+    """Responsible for starting and closing Selenium."""
 
     def __init__(self, useragent):
-        """Initialize the webdriver.
+        """Initialize headless webdriver with random user agent."""
 
-        Set the webdriver to headless (i.e., hide browser GUI). Also modify the
-        Firefox profile's preferences.
-
-        Args:
-            useragent (str): Overrides the default user agent.
-
-        Raises:
-            TypeError
-            exceptions.WebDriverException
-
-        """
         options = Options()
+        # Hide the browser window.
         options.headless = True
         # Change settings in about:config.
         profile = webdriver.FirefoxProfile()
@@ -54,15 +44,7 @@ class WebDriver:
             raise SystemExit(e)
 
     def open(self, url):
-        """Start webdriver and visit url.
-
-        Args:
-            url (str): Page to visit.
-
-        Raises:
-            exceptions.WebDriverException: Shut down and print error message.
-
-        """
+        """Start webdriver and visit url."""
         try:
             self.driver.get(url)
         except exceptions.WebDriverException as e:
@@ -87,13 +69,10 @@ class URLScraper(WebDriver):
     """
 
     def __init__(self, useragent, output):
-        """Inherit from WebDriver and initialize list of downloaded posts.
+        """Inherit from WebDriver and initialize list of downloaded posts."""
 
-        Args:
-            useragent (str): Used for __init__ in WebDriver.
-            output (str): Scan downloaded files and get their shortcodes.
-        """
         super().__init__(useragent)
+        # Scan downloaded files and get their shortcodes.
         self.filelist = [
             str(file)[-36:-25] for file in Path(output).rglob("*.*")
         ]
@@ -113,7 +92,7 @@ class URLScraper(WebDriver):
         if self._exists():
             # Hashtag or a public profile.
             if self._exists() and self._is_public(hashtag):
-                limit = self._check_limit(limit, hashtag)
+                limit = self._check_limit(limit)
                 return self._get_urls(limit)
             # Private profile.
         elif self._exists() and not self._is_public():
@@ -125,41 +104,37 @@ class URLScraper(WebDriver):
 
     def _exists(self):
         """Return true if user or hashtag exists."""
+
         if "Page Not Found" in self.driver.title:
             return False
+
         return True
 
     def _is_public(self, hashtag=False):
         """Return true if account is public."""
-        # Make sure it's not a hashtag page before checking if account status.
+
         if not hashtag:
-            soup = BeautifulSoup(self.driver.page_source, "html.parser")
-            script = soup.select("body > script:nth-child(6)")
-            json_data = script[0].text[21:-1]
-            data = json.loads(json_data)
-            private = data["entry_data"]["ProfilePage"][0]["graphql"]["user"][
-                "is_private"
-            ]
+            private = parse_json(
+                self.driver.page_source, JSON_CSS_SELECTOR, hook.private_profile
+            )
             if private:
                 return False
 
         return True
 
-    def _check_limit(self, limit, hashtag):
+    def _check_limit(self, limit):
         """Return limit that is less than or equal to existing posts."""
-        soup = BeautifulSoup(self.driver.page_source, "html.parser")
-        script = soup.select("body > script:nth-child(6)")
-        json_data = script[0].text[21:-1]
-        data = json.loads(json_data)
 
-        if hashtag:
-            total_posts = data["entry_data"]["TagPage"][0]["graphql"][
-                "hashtag"
-            ]["edge_hashtag_to_media"]["count"]
-        else:
-            total_posts = data["entry_data"]["ProfilePage"][0]["graphql"][
-                "user"
-            ]["edge_owner_to_timeline_media"]["count"]
+        try:
+            total_posts = parse_json(
+                self.driver.page_source, JSON_CSS_SELECTOR, hook.user_post_count
+            )
+        except KeyError:
+            total_posts = parse_json(
+                self.driver.page_source,
+                JSON_CSS_SELECTOR,
+                hook.hashtag_post_count,
+            )
 
         if limit > total_posts:
             return total_posts
@@ -168,6 +143,7 @@ class URLScraper(WebDriver):
 
     def _get_urls(self, limit):
         """Return list with post urls to download files from."""
+
         urls = set()
         scroll_pos = 0
         main = self.driver.find_element_by_class_name(MAIN_CONTENT)

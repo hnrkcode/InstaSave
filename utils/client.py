@@ -13,11 +13,12 @@ class HTTPHeaders:
 
     @property
     def headers(self):
-        """dict: Get HTTP headers.
+        """Return dict with HTTP headers.
 
         To generate new HTTP headers with a different user agent string
-        reassign the file with the list of user agents.
+        reassign the useragent file list.
         """
+
         return self.__headers
 
     @headers.setter
