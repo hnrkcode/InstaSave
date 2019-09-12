@@ -1,12 +1,8 @@
-import json
-import random
-import sys
 from pathlib import Path
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common import exceptions
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.firefox.options import Options
 
 from utils import hook

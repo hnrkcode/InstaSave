@@ -1,10 +1,7 @@
-import json
 import os
-import random
 from datetime import datetime
 
 import requests
-from bs4 import BeautifulSoup
 
 from utils import decorator, hook
 from utils.color import TextColors
