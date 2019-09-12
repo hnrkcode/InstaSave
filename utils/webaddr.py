@@ -36,7 +36,7 @@ def get_url(id, hashtag):
         url = re.match(
             "^http[s]?://www.instagram.com/explore/tags/[a-zA-Z0-9_]+", id
         )
-        name = re.match("^[a-zA-Z0-9_]+", id)
+        name = re.match("^[a-zA-Z0-9_]+$", id)
     else:
         # Patterns for usernames.
         url = re.match(
