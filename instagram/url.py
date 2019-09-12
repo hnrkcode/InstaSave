@@ -1,5 +1,4 @@
 import json
-import os.path
 import random
 import sys
 from pathlib import Path
@@ -144,33 +143,42 @@ class URLScraper(WebDriver):
     def _get_urls(self, limit):
         """Return list with post urls to download files from."""
 
+        def update_post_list():
+            """Update lookup list with post urls."""
+
+            main = self.driver.find_element_by_class_name(MAIN_CONTENT)
+            innerHTML = main.get_attribute("innerHTML")
+            soup = BeautifulSoup(innerHTML, "html.parser")
+
+            return soup.find_all(class_=POST)
+
         urls = set()
         scroll_pos = 0
-        main = self.driver.find_element_by_class_name(MAIN_CONTENT)
-        innerHTML = main.get_attribute("innerHTML")
-        soup = BeautifulSoup(innerHTML, "html.parser")
-        posts = soup.find_all(class_=POST)
+        posts = update_post_list()
 
-        # Run until the limit has been reached.
-        while len(urls) < limit:
+        while True:
             # Go through all scraped post urls.
             for post in posts:
-                path = post.parent["href"]
-                url = "https://www.instagram.com" + path
-                # Add url if limit hasn't yet been reachded and if the url
-                # doesn't belong to a post that has been downloaded before.
-                if len(urls) < limit and path[3:-1] not in self.filelist:
+                # Stop when all wanted urls has been added to the list.
+                if len(urls) == limit:
+                    break
+
+                shortcode = post.parent["href"][3:-1]
+
+                # Add posts not previously downloaded.
+                if shortcode not in self.filelist:
+                    url = "https://www.instagram.com/p/" + shortcode
                     urls.add(url)
 
             # Get new urls as long as limit hasn't been reached.
             if len(urls) < limit:
-                # Update HTML code.
-                main = self.driver.find_element_by_class_name(MAIN_CONTENT)
-                innerHTML = main.get_attribute("innerHTML")
-                soup = BeautifulSoup(innerHTML, "html.parser")
-                posts = soup.find_all(class_=POST)
+                posts = update_post_list()
                 # Scroll down to see more posts in the feed.
                 self.driver.execute_script(f"window.scrollTo(0, {scroll_pos});")
                 scroll_pos += 500
+
+                continue
+
+            break
 
         return list(urls)
