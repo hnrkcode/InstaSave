@@ -1,7 +1,6 @@
 __pycache__/
 downloads/
+data/
 *.mp4
 *.jpg
-useragents.txt
 *.log
-geckodriver
