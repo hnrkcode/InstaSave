@@ -30,7 +30,11 @@ def get_arguments():
         ),
     )
     parser.add_argument(
-        "-o", "--output", metavar="PATH", help="Set custom download location."
+        "-o",
+        "--output",
+        metavar=("PATH", "DIRNAME"),
+        nargs=2,
+        help="Set custom download location.",
     )
     parser.add_argument(
         "-v",
@@ -61,7 +65,7 @@ def set_downloader(headers, output, verbose):
 
     # Set custom download location.
     if output:
-        if not os.path.exists(output):
+        if not os.path.exists(output[0]):
             raise SystemExit("Path doesn't exist.")
         return Downloader(headers, output, verbose=verbose)
 
@@ -73,7 +77,8 @@ def main():
 
     # Command line arguments from user.
     args = get_arguments()
-
+    # print(args)
+    # raise SystemExit()
     # HTTP headers with random user agent for requests.
     http_req = HTTPHeaders()
 

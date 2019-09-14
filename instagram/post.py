@@ -105,7 +105,7 @@ class Downloader:
     def output(self, output):
         # Custom output location.
         if output:
-            self.__output = os.path.join(output, "downloads")
+            self.__output = os.path.join(output[0], output[1])
         # Default output location.
         else:
             self.__output = os.path.join(os.getcwd(), "downloads")
