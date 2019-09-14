@@ -24,10 +24,14 @@ Download image/video files from a public instagram posts url. The output is in t
 
 ### Set a custom download location:
 
-Use the `-o` or `--output` flags and path to where to save the output.
+To set a custom download location, use the `-o` or `--output` flags, which requires two arguments:
+
+1. Path to an existing directory.
+
+2. Directory name, which will be created if not already exists.
 
 ```sh
-./instasave.py [url] -o ~/Desktop
+./instasave.py [url] -o ~/Desktop output_files
 ```
 
 ### Display more information:
