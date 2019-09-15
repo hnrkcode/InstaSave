@@ -1,6 +1,6 @@
 import random
 
-from utils.settings import USER_AGENT_FILE
+from .settings import USER_AGENT_FILE
 
 
 class HTTPHeaders:

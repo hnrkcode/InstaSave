@@ -2,7 +2,7 @@ import os.path
 import unittest
 from unittest.mock import mock_open, patch
 
-from utils.client import HTTPHeaders
+from instasave.utils.client import HTTPHeaders
 
 path = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "test_data", "text"

@@ -3,10 +3,10 @@ from datetime import datetime
 
 import requests
 
-from utils import decorator, hook
-from utils.color import TextColors
-from utils.jsonparser import parse_json
-from utils.path import save_file, save_meta
+from instasave.utils import decorator, hook
+from instasave.utils.color import TextColors
+from instasave.utils.jsonparser import parse_json
+from instasave.utils.path import save_file, save_meta
 
 JSON_CSS_SELECTOR = "body > script:nth-child(6)"
 

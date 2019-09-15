@@ -5,9 +5,9 @@ from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.firefox.options import Options
 
-from utils import hook
-from utils.jsonparser import parse_json
-from utils.settings import GECKODRIVER
+from instasave.utils import hook
+from instasave.utils.jsonparser import parse_json
+from instasave.utils.settings import GECKODRIVER
 
 MAIN_CONTENT = "SCxLW"
 

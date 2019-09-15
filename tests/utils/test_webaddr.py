@@ -4,7 +4,7 @@ from unittest.mock import patch
 import requests
 from requests import exceptions
 
-from utils import webaddr
+from instasave.utils import webaddr
 
 
 class TestWebaddr(unittest.TestCase):

@@ -6,8 +6,8 @@ import tarfile
 import requests
 from bs4 import BeautifulSoup
 
-from utils.color import TextColors
-from utils.settings import DATA_DIR, GECKODRIVER
+from instasave.utils.color import TextColors
+from instasave.utils.settings import DATA_DIR, GECKODRIVER
 
 
 class GeckoLoader:

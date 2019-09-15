@@ -3,11 +3,11 @@
 import argparse
 import os.path
 
-from instagram.post import Downloader
-from instagram.url import URLScraper
-from utils.client import HTTPHeaders
-from utils.geckoloader import GeckoLoader
-from utils.webaddr import get_url, validate_url
+from instasave.instagram.post import Downloader
+from instasave.instagram.url import URLScraper
+from instasave.utils.client import HTTPHeaders
+from instasave.utils.geckoloader import GeckoLoader
+from instasave.utils.webaddr import get_url, validate_url
 
 
 def get_arguments():

@@ -3,8 +3,8 @@ import os.path
 import unittest
 from unittest.mock import patch
 
-from utils import hook
-from utils.jsonparser import parse_json
+from instasave.utils import hook
+from instasave.utils.jsonparser import parse_json
 
 
 class TestJsonParser(unittest.TestCase):
@@ -13,15 +13,15 @@ class TestJsonParser(unittest.TestCase):
             os.path.dirname(os.path.dirname(__file__)), "test_data", "html"
         )
 
-        with open(os.path.join(data, "graphimage.html")) as f:
+        with open(os.path.join(data, "graphimage_html.txt")) as f:
             self.graphimage = f.read()
-        with open(os.path.join(data, "graphvideo.html")) as f:
+        with open(os.path.join(data, "graphvideo_html.txt")) as f:
             self.graphvideo = f.read()
-        with open(os.path.join(data, "graphsidecar.html")) as f:
+        with open(os.path.join(data, "graphsidecar_html.txt")) as f:
             self.graphsidecar = f.read()
-        with open(os.path.join(data, "hashtag.html")) as f:
+        with open(os.path.join(data, "hashtag_html.txt")) as f:
             self.hashtag = f.read()
-        with open(os.path.join(data, "username.html")) as f:
+        with open(os.path.join(data, "username_html.txt")) as f:
             self.username = f.read()
 
         self.selector = "body > script:nth-child(6)"

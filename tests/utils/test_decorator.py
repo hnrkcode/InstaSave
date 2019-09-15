@@ -2,7 +2,7 @@ import io
 import sys
 import unittest
 
-from utils import decorator
+from instasave.utils import decorator
 
 
 class TestDecorators(unittest.TestCase):
