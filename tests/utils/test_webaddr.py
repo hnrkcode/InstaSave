@@ -9,7 +9,8 @@ from instasave.utils import webaddr
 
 class TestWebaddr(unittest.TestCase):
     def setUp(self):
-        self.post_url = "https://www.instagram.com/p/abc_XYZ_0-9?asdf=1234"
+        self.post_url = "https://www.instagram.com/p/ABC-abc_123/?source=ig"
+        self.igtv_url = "https://www.instagram.com/tv/ABC-abc_123/?source=ig"
         self.no_match = "https://www.instagram.com/"
         self.hashtag_url = "https://www.instagram.com/explore/tags/somename/"
         self.username_url = "https://www.instagram.com/somename/"
@@ -18,9 +19,8 @@ class TestWebaddr(unittest.TestCase):
     @patch("requests.get")
     def test_validate_url_success(self, mock_requests):
         mock_requests.return_value.status_code = requests.codes.ok
-        want = self.post_url[:39]
-        got = webaddr.validate_url(self.post_url)
-        self.assertEqual(got, want)
+        self.assertEqual(webaddr.validate_url(self.post_url), self.post_url[:39])
+        self.assertEqual(webaddr.validate_url(self.igtv_url), self.igtv_url[:40])
 
     @patch("requests.get")
     def test_validate_url_failure(self, mock_requests):
@@ -31,9 +31,8 @@ class TestWebaddr(unittest.TestCase):
             webaddr.validate_url(self.post_url)
 
     def test_clean_url_return_clean_url(self):
-        want = self.post_url[:39]
-        got = webaddr.clean_url(self.post_url)
-        self.assertEqual(got, want)
+        self.assertEqual(webaddr.clean_url(self.post_url), self.post_url[:39])
+        self.assertEqual(webaddr.clean_url(self.igtv_url), self.igtv_url[:40])
 
     def test_clean_url_not_a_post_url(self):
         with self.assertRaisesRegex(SystemExit, "^Didn't match a post url.$"):
