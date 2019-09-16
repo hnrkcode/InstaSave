@@ -24,7 +24,7 @@ class TestJsonParser(unittest.TestCase):
         with open(os.path.join(data, "username_html.txt")) as f:
             self.username = f.read()
 
-        self.selector = "body > script:nth-child(6)"
+        self.selector = "body > script:nth-child(5)"
 
     def test_parse_json_username(self):
         json_data = parse_json(
