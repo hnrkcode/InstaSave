@@ -19,8 +19,12 @@ class TestWebaddr(unittest.TestCase):
     @patch("requests.get")
     def test_validate_url_success(self, mock_requests):
         mock_requests.return_value.status_code = requests.codes.ok
-        self.assertEqual(webaddr.validate_url(self.post_url), self.post_url[:39])
-        self.assertEqual(webaddr.validate_url(self.igtv_url), self.igtv_url[:40])
+        self.assertEqual(
+            webaddr.validate_url(self.post_url), self.post_url[:39]
+        )
+        self.assertEqual(
+            webaddr.validate_url(self.igtv_url), self.igtv_url[:40]
+        )
 
     @patch("requests.get")
     def test_validate_url_failure(self, mock_requests):

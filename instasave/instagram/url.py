@@ -7,13 +7,12 @@ from selenium.webdriver.firefox.options import Options
 
 from instasave.utils import hook
 from instasave.utils.jsonparser import parse_json
-from instasave.utils.settings import GECKODRIVER
-
-MAIN_CONTENT = "SCxLW"
-
-POST = "eLAPa"
-
-JSON_CSS_SELECTOR = "body > script:nth-child(6)"
+from instasave.utils.settings import (
+    GECKODRIVER,
+    JSON_CSS_SELECTOR,
+    MAIN_CONTENT,
+    POST,
+)
 
 
 class WebDriver:

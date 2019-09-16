@@ -13,3 +13,12 @@ USER_AGENT_FILE = os.path.join(DATA_DIR, "useragents.txt")
 
 # Web driver for selenium.
 GECKODRIVER = os.path.join(DATA_DIR, "geckodriver")
+
+# CSS class name for page main content.
+MAIN_CONTENT = "SCxLW"
+
+# CSS class name for posts.
+POST = "eLAPa"
+
+# CSS selector for script with json data.
+JSON_CSS_SELECTOR = "body > script:nth-child(5)"

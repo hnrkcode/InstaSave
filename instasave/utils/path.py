@@ -76,11 +76,11 @@ def save_meta(data, output, index):
 
     elif post_type == "GraphSidecar":
         node = data["edge_sidecar_to_children"]["edges"][index]["node"]
-        sub_type = node['__typename']
-        sub_shortcode = node['shortcode']
+        sub_type = node["__typename"]
+        sub_shortcode = node["shortcode"]
         is_video = node["is_video"]
         post_type = post_type
-        shortcode = data['shortcode']
+        shortcode = data["shortcode"]
 
         # Videos don't have accessibility caption.
         if sub_type != "GraphVideo":

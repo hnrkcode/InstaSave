@@ -7,8 +7,7 @@ from instasave.utils import decorator, hook
 from instasave.utils.color import TextColors
 from instasave.utils.jsonparser import parse_json
 from instasave.utils.path import save_file, save_meta
-
-JSON_CSS_SELECTOR = "body > script:nth-child(6)"
+from instasave.utils.settings import JSON_CSS_SELECTOR
 
 
 class PostScraper:
