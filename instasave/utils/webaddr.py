@@ -18,7 +18,7 @@ def clean_url(url):
     """Return clean post URL without UTM code at the end."""
 
     # Pattern that match a link to an Instagram post.
-    match = re.match("^http[s]?://www.instagram.com/p/[a-zA-Z0-9_-]{11}", url)
+    match = re.match("^http[s]?://www.instagram.com/(p|tv)/[a-zA-Z0-9_-]{11}", url)
     # Shut down the program if the URL didn't match the pattern.
     if not match:
         raise SystemExit("Didn't match a post url.")
