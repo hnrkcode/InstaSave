@@ -95,6 +95,7 @@ class Downloader:
         self.output = output
         self.verbose = verbose
         self.text = TextColors()
+        self.index = 0
 
     @property
     def output(self):
@@ -134,7 +135,7 @@ class Downloader:
             self.output, self.scraper.username, date, self.scraper.shortcode
         )
         save_file(r.content, output, filename)
-        save_meta(self.scraper.data, output)
+        self.index = save_meta(self.scraper.data, output, self.index)
 
         if self.verbose:
             file = self.text.blue(r.headers["Content-Type"])
