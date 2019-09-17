@@ -1,19 +1,17 @@
-#!/usr/bin/env python
-
 import argparse
 import os.path
 
-from instasave.instagram.post import Downloader
-from instasave.instagram.url import URLScraper
-from instasave.utils.client import HTTPHeaders
-from instasave.utils.geckoloader import GeckoLoader
-from instasave.utils.webaddr import get_url, validate_url
+from .instagram.post import Downloader
+from .instagram.url import URLScraper
+from .utils.client import HTTPHeaders
+from .utils.geckoloader import GeckoLoader
+from .utils.webaddr import get_url, validate_url
 
 
 def get_arguments():
     """Get arguments passed to the program by the user."""
 
-    name = "./instasave.py"
+    name = "instasave"
     usage = "%(prog)s [options] input"
     descr = (
         "Download images, videos and metadata from public Instagram posts."
@@ -57,6 +55,14 @@ def get_arguments():
         help="Download posts from a hashtag page.",
     )
 
+    args = parser.parse_args()
+
+    # Check that there is a download limit if hashtag is set.
+    if args.hashtag and args.post < 1:
+        raise parser.error(
+            "-p LIMIT, --post LIMIT is required if -H, --hashtag is set"
+        )
+
     return parser.parse_args()
 
 
@@ -77,8 +83,7 @@ def main():
 
     # Command line arguments from user.
     args = get_arguments()
-    # print(args)
-    # raise SystemExit()
+
     # HTTP headers with random user agent for requests.
     http_req = HTTPHeaders()
 

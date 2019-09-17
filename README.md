@@ -1,63 +1,96 @@
 # InstaSave
 
-> Download images and videos from Instagram.
+> Download images and videos from Instagram in a structured way.
 
-This Instagram scraper can download any public post on Instagram. If you want to download a specific post just enter it's url.
+This Instagram scraper can download public posts from Instagram, which means images and videos from posts, users, or hashtag pages.
 
-If you on the other hand want to scrape a public users feed or public posts with a certain hashtag, enter a username/hashtag or the the full url to the profile/hashtag and specify how many posts to download. The scraper then starts from the most recent post and ignores anything it has already saved.
+The scraper remembers which posts that has been scraped and ignores them if encountered again.
 
-So if you want to download posts from a users feed, you can for instance download the latest 15 posts and then stop. If you continue to scrape posts from the same users feed in the future, it will start by saving everything that has been uploaded since the last time and then save any posts after the originally 15 posts.
+The downloaded files are by default organized in a directory named `downloads` in the projects root directory, but the output directory's name and path can be changed, if desired.
 
-Downloaded files are organized in folders named `/downloads/username/upload_date/shortcode/`, which contains images, videos and metadata from the individual post. By default they are stored in the current working directory, but can be changed.
+To easier get an overview of downloaded posts, metadata about them are saved in `data.csv` which is located in the output folders root directory.
+
+## Setup
+
+#### Install & uninstall package
+
+```sh
+pip install .
+```
+```sh
+pip uninstall instasave
+```
+
+#### Editable mode install
+
+Install package in editable mode to be able to develop and test the code without uninstall and reinstall over and over again.
+
+```sh
+pip install -e .
+```
+
 
 ## Usage
 
-Use any combination of the flags to get the desired output.
+`instasave [options] input`
 
-### Download specific posts:
+Use any combination of the options in the table below together with the input value. A name is sufficient for users and hashtags, but posts needs a full url.
+
+| short opt |  long opt  |       args       |         descr           |
+|:---------:|------------|------------------|-------------------------|
+| `-h`      | `--help`   | None             | Show usage information  |
+| `-o`      | `--output` | [path] [dirname] | custom output location  |
+| `-v`      | `--verbose`| None             | show more information   |
+| `-p`      | `--posts`  | [limit]          | download this many posts|
+| `-H`      | `--hashtag`| None             | download posts from hashtag page, used together with `-p`, `--post`|
+
+
+## Examples
+
+#### Download specific posts
 
 Download image/video files from a public instagram posts url. The output is in the current directory.
 
 ```sh
-./instasave.py [url]
+instasave [url]
 ```
 
-### Set a custom download location:
+#### Set a custom download location
 
 To set a custom download location, use the `-o` or `--output` flags, which requires two arguments:
 
-1. Path to an existing directory.
+1. Path to an existing directory in the file system (e.g. ~/Desktop).
 
-2. Directory name, which will be created if not already exists.
+2. Name of output directory (e.g. output), will be created if not already exists.
 
 ```sh
-./instasave.py [url] -o ~/Desktop output_files
+instasave [url] -o [path] [dirname]
 ```
 
-### Display more information:
+#### Display more information
 
 To show information about what the program is doing, use the `-v` or `--verbose` flags.
 
 ```sh
-./instasave.py [url] -v
+instasave [url] -v
 ```
 
-### Scrape a users feed:
+#### Scrape a users feed
 
 To download a certain number of posts from a users feed, starting from the most recent, use the `-p` or `--post` flags. `[username]` can be either just the username or the url to the users Instagram profile.
 
 The `-p` flag only works if used along with a username or user profile url.
 
 ```sh
-./instasave.py [username] -p [number]
+instasave [username] -p [number]
 ```
 
-### Scrape posts tagged with a certain hashtag:
+#### Scrape posts tagged with a certain hashtag
 
 Works almost exactly the same as if you would scrape a users feed, except that you also need to use the `-H` ir `--hashtag` flags.
 
 ```sh
-./instasave.py [hashtag] -p [number] --hashtag
+instasave [hashtag] -p [number] --hashtag
 ```
 
 ## Run tests

@@ -4,3 +4,4 @@ data/
 *.mp4
 *.jpg
 *.log
+*.egg-info
