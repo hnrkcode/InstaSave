@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from instasave.instagram.post import PostScraper
 from instasave.utils import hook
-from instasave.utils.client import HTTPHeaders
+from instasave.web.client import HTTPHeaders
 
 HTML = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))),

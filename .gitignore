@@ -1,6 +1,7 @@
 __pycache__/
 downloads/
 data/
+log/
 *.mp4
 *.jpg
 *.log

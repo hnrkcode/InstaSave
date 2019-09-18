@@ -2,7 +2,7 @@ import os.path
 import unittest
 from unittest.mock import mock_open, patch
 
-from instasave.utils.client import HTTPHeaders
+from instasave.web.client import DEFAULT_UA_LIST, HTTPHeaders
 
 path = os.path.join(
     os.path.dirname(os.path.dirname(__file__)), "test_data", "text"
@@ -14,10 +14,8 @@ with open(os.path.join(path, "useragents.txt")) as f:
 class TestClient(unittest.TestCase):
     def test_random_useragent_file_not_found(self):
         ua = HTTPHeaders()
-        with self.assertRaisesRegex(
-            SystemExit, "^No such file or directory: test.txt$"
-        ):
-            ua.headers = "test.txt"
+        ua.headers = "test.txt"
+        self.assertIn(ua.headers["User-Agent"], DEFAULT_UA_LIST)
 
     @patch("builtins.open", new_callable=mock_open, read_data=USERAGENTS)
     def test_random_useragent_return_useragent_from_file(self, mock_file):

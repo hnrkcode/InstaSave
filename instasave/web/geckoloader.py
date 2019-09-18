@@ -6,8 +6,9 @@ import tarfile
 import requests
 from bs4 import BeautifulSoup
 
-from .color import TextColors
-from .settings import DATA_DIR, GECKODRIVER
+from instasave.utils.color import TextColors
+from instasave.utils.path import check_path
+from instasave.utils.settings import DATA_DIR, GECKODRIVER
 
 
 class GeckoLoader:
@@ -83,6 +84,8 @@ class GeckoLoader:
 
         if not filename:
             raise SystemExit("Couldn't download driver for your system.")
+
+        check_path(DATA_DIR)
 
         # Save the archive with the geckodriver.
         with open(os.path.join(DATA_DIR, filename), "wb") as f:

@@ -1,3 +1,4 @@
+import os.path
 from pathlib import Path
 
 from bs4 import BeautifulSoup
@@ -7,9 +8,11 @@ from selenium.webdriver.firefox.options import Options
 
 from instasave.utils import hook
 from instasave.utils.jsonparser import parse_json
+from instasave.utils.path import check_path
 from instasave.utils.settings import (
     GECKODRIVER,
     JSON_CSS_SELECTOR,
+    LOG_DIR,
     MAIN_CONTENT,
     POST,
 )
@@ -22,17 +25,23 @@ class WebDriver:
         """Initialize headless webdriver with random user agent."""
 
         options = Options()
+        profile = webdriver.FirefoxProfile()
+
         # Hide the browser window.
         options.headless = True
+
         # Change settings in about:config.
-        profile = webdriver.FirefoxProfile()
         profile.set_preference("general.useragent.override", useragent)
+
+        # Create log directory for geckodriver.log if it doesn't exist.
+        check_path(LOG_DIR)
 
         try:
             self.driver = webdriver.Firefox(
                 firefox_profile=profile,
                 options=options,
                 executable_path=GECKODRIVER,
+                log_path=os.path.join(LOG_DIR, "geckodriver.log"),
             )
         except (TypeError, exceptions.WebDriverException) as e:
             raise SystemExit(e)

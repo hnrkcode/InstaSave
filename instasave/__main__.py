@@ -3,9 +3,9 @@ import os.path
 
 from .instagram.post import Downloader
 from .instagram.url import URLScraper
-from .utils.client import HTTPHeaders
-from .utils.geckoloader import GeckoLoader
 from .utils.webaddr import get_url, validate_url
+from .web.client import HTTPHeaders
+from .web.geckoloader import GeckoLoader
 
 
 def get_arguments():
@@ -83,15 +83,14 @@ def main():
 
     # Command line arguments from user.
     args = get_arguments()
-
-    # HTTP headers with random user agent for requests.
-    http_req = HTTPHeaders()
-
     urls = [args.input]
     post_limit = args.post
     is_hashtag = args.hashtag
     is_verbose = args.verbose
     output_path = args.output
+
+    # HTTP headers with random user agent for requests.
+    http_req = HTTPHeaders(is_verbose)
     headers = http_req.headers
     useragent = http_req.headers["User-Agent"]
 

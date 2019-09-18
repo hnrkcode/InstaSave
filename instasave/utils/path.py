@@ -7,7 +7,7 @@ import magic
 from PIL import Image
 
 
-def _check_path(output):
+def check_path(output):
     """Create folder for downloaded files if it not exist."""
 
     if not os.path.isdir(output):
@@ -170,7 +170,7 @@ def save_file(buffer, output, filename):
         filename (str): Name of the file.
     """
 
-    _check_path(output)
+    check_path(output)
 
     # Look at the first 12 bytes to determine the file type,
     # because the first 4 bytes are needed for JPEGs and MP4 signatures
